@@ -1,0 +1,18 @@
+<svg width="800" height="200" viewBox="0 0 800 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="dev-grad" x1="0" y1="0" x2="100%" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#94a3b8" />
+    </linearGradient>
+  </defs>
+
+  <!-- Developer Font Style: Monospace with underscore -->
+  <text x="50%" y="130" text-anchor="middle" 
+        font-family="'JetBrains Mono', 'Fira Code', 'Courier New', monospace" 
+        font-weight="700" 
+        font-size="140" 
+        letter-spacing="-0.05em" 
+        fill="url(#dev-grad)">
+    Hexoran_
+  </text>
+</svg>
