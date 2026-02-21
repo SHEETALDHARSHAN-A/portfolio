@@ -48,7 +48,7 @@ export const Globe = () => {
     }, []);
 
     return (
-        <div className="relative w-[150%] md:w-full max-w-[800px] aspect-square mx-auto translate-y-[20%] translate-x-[20%] lg:translate-y-[25%] lg:translate-x-[25%] scale-[1.1] md:scale-[1.2]">
+        <div className="relative w-[150%] md:w-full max-w-[800px] aspect-square mx-auto translate-y-[15%] translate-x-[15%] lg:translate-y-[20%] lg:translate-x-[20%] scale-[0.85] md:scale-[0.95]">
             <canvas
                 ref={canvasRef}
                 style={{
