@@ -164,7 +164,7 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
     const currentLang = persona.languages.find((l) => l.code === language);
 
     return (
-        <div className={cn("w-full mx-auto transition-all duration-500", isHeroVariant ? "max-w-none h-full flex flex-col" : "max-w-md")}>
+        <div className={cn("w-full mx-auto transition-all duration-500", isHeroVariant ? "max-w-none flex flex-col" : "max-w-md")} style={isHeroVariant ? { height: '65vh', minHeight: '350px', maxHeight: '700px' } : {}}> 
             {/* Avatar Section */}
             {!isHeroVariant && (
                 <motion.div
@@ -208,7 +208,7 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                     ref={chatContainerRef}
                     className={cn(
                         "overflow-y-auto p-6 space-y-6 scroll-smooth scrollbar-hide",
-                        isHeroVariant ? "h-[350px] md:h-[450px]" : "h-[400px]"
+                        isHeroVariant ? "h-[300px] md:h-[400px]" : "h-[400px]"
                     )}
                     style={{ scrollbarWidth: "none" }}
                 >

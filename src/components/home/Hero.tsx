@@ -34,7 +34,7 @@ export const Hero = () => {
 
             {/* Content */}
             <div className="relative z-10 w-full max-w-5xl mx-auto px-6 flex flex-col items-center justify-center">
-                <div className="flex flex-col items-center text-center w-full pt-20 pb-10 mt-12">
+                <div className="flex flex-col items-center text-center w-full pt-12 pb-10 mt-6">
                     {/* Intro Horizontal Group */}
                     <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 mb-8">
                         {/* Avatar Area */}
