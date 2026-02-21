@@ -12,111 +12,180 @@ const config: Config = {
     "./src/data/**/*.{ts,tsx}",
   ],
   theme: {
-    container: {
-      center: true,
-      padding: "2rem",
-      screens: { "2xl": "1400px" },
-    },
-    extend: {
-      fontFamily: {
-        sans: ["var(--font-inter)", "sans-serif"],
-        display: ["var(--font-space)", "sans-serif"],
-        mono: ["var(--font-jetbrains)", "monospace"],
-      },
-      colors: {
-        background: "#09090b",
-        surface: "#18181b",
-        primary: {
-          DEFAULT: "#7c3aed",
-          foreground: "#f8fafc",
-        },
-        accent: {
-          DEFAULT: "#06b6d4",
-          foreground: "#f8fafc",
-        },
-        gold: "#eab308",
-        text: {
-          main: "#f8fafc",
-          muted: "#94a3b8",
-        },
-        border: "rgba(255,255,255,0.08)",
-        input: "rgba(255,255,255,0.08)",
-        ring: "#7c3aed",
-        muted: {
-          DEFAULT: "#18181b",
-          foreground: "#94a3b8",
-        },
-        card: {
-          DEFAULT: "#18181b",
-          foreground: "#f8fafc",
-        },
-        destructive: {
-          DEFAULT: "#dc2626",
-          foreground: "#f8fafc",
-        },
-      },
-      borderRadius: {
-        lg: "0.75rem",
-        md: "calc(0.75rem - 2px)",
-        sm: "calc(0.75rem - 4px)",
-      },
-      keyframes: {
-        spotlight: {
-          "0%": { opacity: "0", transform: "translate(-72%, -62%) scale(0.5)" },
-          "100%": { opacity: "1", transform: "translate(-50%,-40%) scale(1)" },
-        },
-        shimmer: {
-          from: { backgroundPosition: "0 0" },
-          to: { backgroundPosition: "-200% 0" },
-        },
-        moveHorizontal: {
-          "0%": { transform: "translateX(-50%) translateY(-10%)" },
-          "50%": { transform: "translateX(50%) translateY(10%)" },
-          "100%": { transform: "translateX(-50%) translateY(-10%)" },
-        },
-        moveInCircle: {
-          "0%": { transform: "rotate(0deg)" },
-          "50%": { transform: "rotate(180deg)" },
-          "100%": { transform: "rotate(360deg)" },
-        },
-        moveVertical: {
-          "0%": { transform: "translateY(-50%)" },
-          "50%": { transform: "translateY(50%)" },
-          "100%": { transform: "translateY(-50%)" },
-        },
-        scroll: {
-          to: { transform: "translate(calc(-50% - 0.5rem))" },
-        },
-        float: {
-          "0%, 100%": { transform: "translateY(0px)" },
-          "50%": { transform: "translateY(-20px)" },
-        },
-        "pulse-glow": {
-          "0%, 100%": { boxShadow: "0 0 20px rgba(124, 58, 237, 0.3)" },
-          "50%": { boxShadow: "0 0 40px rgba(124, 58, 237, 0.6)" },
-        },
-        "typing-dot": {
-          "0%, 60%, 100%": { transform: "translateY(0)" },
-          "30%": { transform: "translateY(-8px)" },
-        },
-      },
-      animation: {
-        spotlight: "spotlight 2s ease .75s 1 forwards",
-        shimmer: "shimmer 2s linear infinite",
-        "pulse-slow": "pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite",
-        first: "moveVertical 30s ease infinite",
-        second: "moveInCircle 20s reverse infinite",
-        third: "moveInCircle 40s linear infinite",
-        fourth: "moveHorizontal 40s ease infinite",
-        fifth: "moveInCircle 20s ease infinite",
-        scroll: "scroll var(--animation-duration, 40s) var(--animation-direction, forwards) linear infinite",
-        float: "float 6s ease-in-out infinite",
-        "pulse-glow": "pulse-glow 2s ease-in-out infinite",
-        "typing-1": "typing-dot 1.4s ease-in-out infinite",
-        "typing-2": "typing-dot 1.4s ease-in-out 0.2s infinite",
-        "typing-3": "typing-dot 1.4s ease-in-out 0.4s infinite",
-      },
-    },
+  	container: {
+  		center: true,
+  		padding: '2rem',
+  		screens: {
+  			'2xl': '1400px'
+  		}
+  	},
+  	extend: {
+  		fontFamily: {
+  			sans: [
+  				'var(--font-inter)',
+  				'sans-serif'
+  			],
+  			display: [
+  				'var(--font-space)',
+  				'sans-serif'
+  			],
+  			mono: [
+  				'var(--font-jetbrains)',
+  				'monospace'
+  			]
+  		},
+  		colors: {
+  			background: 'hsl(var(--background))',
+  			surface: '#18181b',
+  			primary: {
+  				DEFAULT: 'hsl(var(--primary))',
+  				foreground: 'hsl(var(--primary-foreground))'
+  			},
+  			accent: {
+  				DEFAULT: 'hsl(var(--accent))',
+  				foreground: 'hsl(var(--accent-foreground))'
+  			},
+  			gold: '#eab308',
+  			text: {
+  				main: '#f8fafc',
+  				muted: '#94a3b8'
+  			},
+  			border: 'hsl(var(--border))',
+  			input: 'hsl(var(--input))',
+  			ring: 'hsl(var(--ring))',
+  			muted: {
+  				DEFAULT: 'hsl(var(--muted))',
+  				foreground: 'hsl(var(--muted-foreground))'
+  			},
+  			card: {
+  				DEFAULT: 'hsl(var(--card))',
+  				foreground: 'hsl(var(--card-foreground))'
+  			},
+  			destructive: {
+  				DEFAULT: 'hsl(var(--destructive))',
+  				foreground: 'hsl(var(--destructive-foreground))'
+  			},
+  			foreground: 'hsl(var(--foreground))',
+  			popover: {
+  				DEFAULT: 'hsl(var(--popover))',
+  				foreground: 'hsl(var(--popover-foreground))'
+  			},
+  			secondary: {
+  				DEFAULT: 'hsl(var(--secondary))',
+  				foreground: 'hsl(var(--secondary-foreground))'
+  			},
+  			chart: {
+  				'1': 'hsl(var(--chart-1))',
+  				'2': 'hsl(var(--chart-2))',
+  				'3': 'hsl(var(--chart-3))',
+  				'4': 'hsl(var(--chart-4))',
+  				'5': 'hsl(var(--chart-5))'
+  			}
+  		},
+  		borderRadius: {
+  			lg: 'var(--radius)',
+  			md: 'calc(var(--radius) - 2px)',
+  			sm: 'calc(var(--radius) - 4px)'
+  		},
+  		keyframes: {
+  			spotlight: {
+  				'0%': {
+  					opacity: '0',
+  					transform: 'translate(-72%, -62%) scale(0.5)'
+  				},
+  				'100%': {
+  					opacity: '1',
+  					transform: 'translate(-50%,-40%) scale(1)'
+  				}
+  			},
+  			shimmer: {
+  				from: {
+  					backgroundPosition: '0 0'
+  				},
+  				to: {
+  					backgroundPosition: '-200% 0'
+  				}
+  			},
+  			moveHorizontal: {
+  				'0%': {
+  					transform: 'translateX(-50%) translateY(-10%)'
+  				},
+  				'50%': {
+  					transform: 'translateX(50%) translateY(10%)'
+  				},
+  				'100%': {
+  					transform: 'translateX(-50%) translateY(-10%)'
+  				}
+  			},
+  			moveInCircle: {
+  				'0%': {
+  					transform: 'rotate(0deg)'
+  				},
+  				'50%': {
+  					transform: 'rotate(180deg)'
+  				},
+  				'100%': {
+  					transform: 'rotate(360deg)'
+  				}
+  			},
+  			moveVertical: {
+  				'0%': {
+  					transform: 'translateY(-50%)'
+  				},
+  				'50%': {
+  					transform: 'translateY(50%)'
+  				},
+  				'100%': {
+  					transform: 'translateY(-50%)'
+  				}
+  			},
+  			scroll: {
+  				to: {
+  					transform: 'translate(calc(-50% - 0.5rem))'
+  				}
+  			},
+  			float: {
+  				'0%, 100%': {
+  					transform: 'translateY(0px)'
+  				},
+  				'50%': {
+  					transform: 'translateY(-20px)'
+  				}
+  			},
+  			'pulse-glow': {
+  				'0%, 100%': {
+  					boxShadow: '0 0 20px rgba(124, 58, 237, 0.3)'
+  				},
+  				'50%': {
+  					boxShadow: '0 0 40px rgba(124, 58, 237, 0.6)'
+  				}
+  			},
+  			'typing-dot': {
+  				'0%, 60%, 100%': {
+  					transform: 'translateY(0)'
+  				},
+  				'30%': {
+  					transform: 'translateY(-8px)'
+  				}
+  			}
+  		},
+  		animation: {
+  			spotlight: 'spotlight 2s ease .75s 1 forwards',
+  			shimmer: 'shimmer 2s linear infinite',
+  			'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+  			first: 'moveVertical 30s ease infinite',
+  			second: 'moveInCircle 20s reverse infinite',
+  			third: 'moveInCircle 40s linear infinite',
+  			fourth: 'moveHorizontal 40s ease infinite',
+  			fifth: 'moveInCircle 20s ease infinite',
+  			scroll: 'scroll var(--animation-duration, 40s) var(--animation-direction, forwards) linear infinite',
+  			float: 'float 6s ease-in-out infinite',
+  			'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+  			'typing-1': 'typing-dot 1.4s ease-in-out infinite',
+  			'typing-2': 'typing-dot 1.4s ease-in-out 0.2s infinite',
+  			'typing-3': 'typing-dot 1.4s ease-in-out 0.4s infinite'
+  		}
+  	}
   },
   plugins: [
     require("tailwindcss-animate"),

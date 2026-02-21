@@ -23,23 +23,23 @@ const skills = [
 ];
 
 const SkillChip = ({ name, icon: Icon }: { name: string; icon: React.ElementType }) => (
-    <div className="flex items-center gap-3 px-5 py-3 rounded-xl bg-white/[0.02] border border-white/[0.06] whitespace-nowrap flex-shrink-0">
+    <div className="flex items-center gap-3 px-5 py-3 rounded-xl bg-foreground/[0.02] border border-foreground/[0.06] whitespace-nowrap flex-shrink-0">
         <Icon className="w-4 h-4 text-primary" />
-        <span className="text-sm text-white/70 font-medium">{name}</span>
+        <span className="text-sm text-foreground/70 font-medium">{name}</span>
     </div>
 );
 
 export const SkillsMarquee = () => {
     return (
-        <section className="py-20 overflow-hidden border-t border-white/5">
+        <section className="py-20 overflow-hidden border-t border-foreground/5">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 className="text-center mb-12"
             >
-                <p className="text-xs uppercase tracking-widest text-white/40 mb-2 font-mono">Technologies</p>
-                <h2 className="text-2xl md:text-3xl font-bold text-white font-display">
+                <p className="text-xs uppercase tracking-widest text-foreground/40 mb-2 font-mono">Technologies</p>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground font-display">
                     Tools I <span className="gradient-text">Work With</span>
                 </h2>
             </motion.div>

@@ -18,11 +18,11 @@ const SectionHeader = ({
             transition={{ duration: 0.5 }}
             className="text-center mb-16"
         >
-            <h2 className="text-3xl md:text-5xl font-bold text-white font-display">
+            <h2 className="text-3xl md:text-5xl font-bold text-foreground font-display">
                 {title} <span className="gradient-text">{accent}</span>
             </h2>
             {subtitle && (
-                <p className="text-text-muted mt-4 max-w-xl mx-auto text-sm md:text-base">{subtitle}</p>
+                <p className="text-muted-foreground mt-4 max-w-xl mx-auto text-sm md:text-base">{subtitle}</p>
             )}
         </motion.div>
     );

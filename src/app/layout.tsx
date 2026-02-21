@@ -32,17 +32,40 @@ export const metadata: Metadata = {
   },
 };
 
+import { ThemeProvider } from "@/components/theme-provider";
+import { AnimatedGridPattern } from "@/components/ui/animated-grid-pattern";
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${space.variable} ${mono.variable} dark`}>
-      <body className="antialiased font-sans bg-background text-text-main">
-        <Navbar />
-        {children}
-        <Footer />
+    <html lang="en" className={`${inter.variable} ${space.variable} ${mono.variable}`} suppressHydrationWarning>
+      <body className="antialiased font-sans bg-background text-foreground transition-colors duration-300">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {/* Ambient Background Pattern */}
+          <div className="fixed inset-0 z-[-1] min-h-screen w-full bg-background overflow-hidden">
+            <AnimatedGridPattern
+              numSquares={30}
+              maxOpacity={0.1}
+              duration={3}
+              repeatDelay={1}
+              className={
+                "[mask-image:radial-gradient(800px_circle_at_center,white,transparent)] inset-x-0 inset-y-[-30%] h-[200%] skew-y-12 fill-black/5 stroke-black/5 dark:fill-white/5 dark:stroke-white/5"
+              }
+            />
+          </div>
+
+          <Navbar />
+          {children}
+          <Footer />
+        </ThemeProvider>
       </body>
     </html>
   );

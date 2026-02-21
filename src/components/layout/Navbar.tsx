@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 import { Menu, X, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
+import { Logo } from "@/components/ui/Logo";
 
 const navLinks = [
     { name: "Home", href: "/" },
@@ -51,7 +53,7 @@ export const Navbar = () => {
                 className={cn(
                     "fixed top-0 inset-x-0 z-50 transition-all duration-300",
                     scrolled
-                        ? "h-16 bg-black/50 backdrop-blur-xl border-b border-primary/30 shadow-2xl shadow-primary/5 supports-[backdrop-filter]:bg-black/20"
+                        ? "h-16 bg-background/50 backdrop-blur-xl border-b border-primary/30 shadow-2xl shadow-primary/5 supports-[backdrop-filter]:bg-background/20"
                         : "h-20 bg-transparent border-b border-transparent"
                 )}
             >
@@ -63,13 +65,11 @@ export const Navbar = () => {
                             className="flex items-center gap-2 group z-50 relative"
                             onClick={() => setMobileOpen(false)}
                         >
-                            <div className="relative w-9 h-9 flex items-center justify-center">
+                            <div className="relative w-12 h-12 flex items-center justify-center">
                                 <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                <div className="relative z-10 w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center font-display font-bold text-white text-sm">
-                                    S
-                                </div>
+                                <Logo className="relative z-10 w-full h-full" />
                             </div>
-                            <span className="font-bold text-lg leading-none text-white tracking-tight font-mono group-hover:text-primary/90 transition-colors hidden sm:inline-block">
+                            <span className="font-bold text-lg leading-none text-foreground tracking-tight font-mono group-hover:text-primary/90 transition-colors hidden sm:inline-block">
                                 Sheetal_Dharshan_
                             </span>
                         </Link>
@@ -77,7 +77,7 @@ export const Navbar = () => {
 
                     {/* Center - Desktop Navigation */}
                     <div className="hidden md:flex flex-1 justify-center">
-                        <div className="flex items-center gap-1 bg-white/5 rounded-full p-1 border border-white/5 backdrop-blur-md">
+                        <div className="flex items-center gap-1 bg-foreground/5 rounded-full p-1 border border-foreground/5 backdrop-blur-md">
                             {navLinks.map((link) => {
                                 const isActive = pathname === link.href;
                                 return (
@@ -86,13 +86,13 @@ export const Navbar = () => {
                                         href={link.href}
                                         className={cn(
                                             "relative px-5 py-2 rounded-full text-xs lg:text-sm font-medium transition-all duration-300",
-                                            isActive ? "text-white" : "text-gray-400 hover:text-white"
+                                            isActive ? "text-foreground" : "text-gray-400 hover:text-foreground"
                                         )}
                                     >
                                         {isActive && (
                                             <motion.div
                                                 layoutId="nav-pill"
-                                                className="absolute inset-0 bg-white/10 rounded-full border border-primary/50 shadow-[0_0_10px_-2px_rgba(124,58,237,0.5)]"
+                                                className="absolute inset-0 bg-foreground/10 rounded-full border border-primary/50 shadow-[0_0_10px_-2px_rgba(124,58,237,0.5)]"
                                                 transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                                             />
                                         )}
@@ -111,21 +111,22 @@ export const Navbar = () => {
                                 className={cn(
                                     "px-5 py-2 rounded-full text-sm font-bold transition-all duration-300",
                                     pathname === "/book-a-call"
-                                        ? "bg-primary text-white shadow-[0_0_20px_-5px_rgba(124,58,237,0.5)]"
-                                        : "bg-white/10 border border-white/10 text-white hover:bg-primary hover:border-primary/50 hover:shadow-[0_0_20px_-5px_rgba(124,58,237,0.5)]"
+                                        ? "bg-primary text-primary-foreground shadow-[0_0_20px_-5px_rgba(124,58,237,0.5)]"
+                                        : "bg-foreground/10 border border-foreground/10 text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary/50 hover:shadow-[0_0_20px_-5px_rgba(124,58,237,0.5)]"
                                 )}
                             >
                                 Book a Call
                             </Link>
                         </div>
+                        <AnimatedThemeToggler className="w-10 h-10 rounded-full bg-foreground/5 border border-foreground/10 text-foreground hover:bg-foreground/10" />
 
                         {/* Mobile Toggle */}
                         <button
-                            className="md:hidden text-white p-2 focus:outline-none z-50 group"
+                            className="md:hidden text-foreground p-2 focus:outline-none z-50 group"
                             onClick={() => setMobileOpen(!mobileOpen)}
                             aria-label="Toggle menu"
                         >
-                            <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-active:scale-95 transition-all">
+                            <div className="w-10 h-10 rounded-full bg-foreground/5 border border-foreground/10 flex items-center justify-center group-active:scale-95 transition-all">
                                 {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
                             </div>
                         </button>
@@ -141,7 +142,7 @@ export const Navbar = () => {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
                         transition={{ duration: 0.3, ease: "easeInOut" }}
-                        className="fixed inset-0 z-40 bg-black/95 backdrop-blur-3xl pt-24 px-6 md:hidden flex flex-col"
+                        className="fixed inset-0 z-40 bg-background/95 backdrop-blur-3xl pt-24 px-6 md:hidden flex flex-col"
                     >
                         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px] pointer-events-none opacity-50" />
                         <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-accent/20 rounded-full blur-[100px] pointer-events-none opacity-30" />
@@ -160,8 +161,8 @@ export const Navbar = () => {
                                         className={cn(
                                             "flex items-center justify-between p-5 rounded-2xl transition-all border border-transparent",
                                             pathname === link.href
-                                                ? "bg-white/10 text-white border-white/10 shadow-lg"
-                                                : "text-gray-400 hover:bg-white/5 hover:text-white hover:border-white/5"
+                                                ? "bg-foreground/10 text-foreground border-foreground/10 shadow-lg"
+                                                : "text-gray-400 hover:bg-foreground/5 hover:text-foreground hover:border-foreground/5"
                                         )}
                                     >
                                         <span className="text-xl font-medium tracking-wide">{link.name}</span>

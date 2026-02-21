@@ -42,10 +42,10 @@ export default function BlogPage() {
                     className="text-center mb-12"
                 >
                     <p className="text-xs uppercase tracking-widest text-primary mb-4 font-mono">Blog</p>
-                    <h1 className="text-4xl md:text-6xl font-bold text-white font-display mb-6">
+                    <h1 className="text-4xl md:text-6xl font-bold text-foreground font-display mb-6">
                         Thoughts & <span className="gradient-text">Insights</span>
                     </h1>
-                    <p className="text-text-muted text-sm md:text-base max-w-xl mx-auto">
+                    <p className="text-muted-foreground text-sm md:text-base max-w-xl mx-auto">
                         Writing about web development, design patterns, AI, and the tools
                         that make us better developers.
                     </p>
@@ -80,13 +80,13 @@ export default function BlogPage() {
                                         />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center">
-                                            <span className="text-6xl font-display font-bold text-white/5 opacity-20">
+                                            <span className="text-6xl font-display font-bold text-foreground/5 opacity-20">
                                                 {post.title.charAt(0)}
                                             </span>
                                         </div>
                                     )}
 
-                                    <div className="absolute top-3 left-3 z-20 px-2 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-[10px] font-mono text-white/70">
+                                    <div className="absolute top-3 left-3 z-20 px-2 py-1 rounded-full bg-background/40 backdrop-blur-md border border-foreground/10 text-[10px] font-mono text-foreground/70">
                                         {post.category}
                                     </div>
                                 </div>
@@ -94,7 +94,7 @@ export default function BlogPage() {
                                 {/* Content */}
                                 <div className="p-6 flex flex-col flex-1">
                                     <div className="flex items-center gap-4 mb-3">
-                                        <span className="text-xs text-white/40 font-mono">
+                                        <span className="text-xs text-foreground/40 font-mono">
                                             {new Date(post.created_at).toLocaleDateString("en-US", {
                                                 month: "short",
                                                 day: "numeric",
@@ -103,15 +103,15 @@ export default function BlogPage() {
                                         </span>
                                     </div>
 
-                                    <h2 className="text-xl font-bold text-white mb-3 group-hover:text-primary transition-colors leading-tight">
+                                    <h2 className="text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors leading-tight">
                                         {post.title}
                                     </h2>
 
-                                    <p className="text-sm text-text-muted leading-relaxed mb-4 flex-1 line-clamp-3">
+                                    <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-1 line-clamp-3">
                                         {post.excerpt}
                                     </p>
 
-                                    <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                                    <div className="flex items-center justify-between pt-4 border-t border-foreground/5">
                                         <span className="text-xs font-medium text-primary flex items-center gap-2">
                                             Read More
                                             <ArrowUpRight className="w-4 h-4" />
@@ -124,7 +124,7 @@ export default function BlogPage() {
                 )}
 
                 {!loading && posts.length === 0 && (
-                    <div className="text-center py-20 border border-dashed border-white/10 rounded-3xl">
+                    <div className="text-center py-20 border border-dashed border-foreground/10 rounded-3xl">
                         <p className="text-gray-500 font-mono">No posts found. Check back soon!</p>
                     </div>
                 )}

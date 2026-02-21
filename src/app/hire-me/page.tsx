@@ -66,11 +66,11 @@ export default function HireMePage() {
                     className="text-center"
                 >
                     <p className="text-xs uppercase tracking-widest text-primary mb-4 font-mono">Hire Me</p>
-                    <h1 className="text-4xl md:text-6xl font-bold text-white font-display mb-6">
+                    <h1 className="text-4xl md:text-6xl font-bold text-foreground font-display mb-6">
                         Let&apos;s build something{" "}
                         <span className="gradient-text">incredible</span>
                     </h1>
-                    <p className="text-text-muted text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
+                    <p className="text-muted-foreground text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
                         I help startups and businesses bring their ideas to life with
                         modern web technologies, clean code, and stunning design.
                     </p>
@@ -84,15 +84,15 @@ export default function HireMePage() {
                     {services.map((service, i) => (
                         <GlassCard key={service.title} delay={i * 0.1} className="p-6">
                             <div className="flex items-start gap-4">
-                                <div className="p-3 bg-white/5 rounded-lg group-hover:bg-primary/10 transition-colors flex-shrink-0">
+                                <div className="p-3 bg-foreground/5 rounded-lg group-hover:bg-primary/10 transition-colors flex-shrink-0">
                                     <service.icon className="w-6 h-6 text-primary" />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-bold text-white mb-2">{service.title}</h3>
-                                    <p className="text-sm text-text-muted leading-relaxed mb-3">{service.description}</p>
+                                    <h3 className="text-lg font-bold text-foreground mb-2">{service.title}</h3>
+                                    <p className="text-sm text-muted-foreground leading-relaxed mb-3">{service.description}</p>
                                     <div className="flex flex-wrap gap-1.5">
                                         {service.features.map((f) => (
-                                            <span key={f} className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium bg-white/5 text-white/50">
+                                            <span key={f} className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium bg-foreground/5 text-foreground/50">
                                                 <CheckCircle2 className="w-2.5 h-2.5 text-accent" />
                                                 {f}
                                             </span>
@@ -119,10 +119,10 @@ export default function HireMePage() {
                             className="glass-card p-6 text-center relative"
                         >
                             <span className="text-4xl font-display font-bold text-primary/20 block mb-2">{step.step}</span>
-                            <h3 className="text-lg font-bold text-white mb-2">{step.title}</h3>
-                            <p className="text-sm text-text-muted">{step.description}</p>
+                            <h3 className="text-lg font-bold text-foreground mb-2">{step.title}</h3>
+                            <p className="text-sm text-muted-foreground">{step.description}</p>
                             {i < processSteps.length - 1 && (
-                                <ArrowRight className="hidden md:block absolute top-1/2 -right-5 w-4 h-4 text-white/20 -translate-y-1/2" />
+                                <ArrowRight className="hidden md:block absolute top-1/2 -right-5 w-4 h-4 text-foreground/20 -translate-y-1/2" />
                             )}
                         </motion.div>
                     ))}
@@ -136,23 +136,23 @@ export default function HireMePage() {
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="text-xs text-white/40 uppercase tracking-wider mb-1 block font-mono">Name</label>
+                                <label className="text-xs text-foreground/40 uppercase tracking-wider mb-1 block font-mono">Name</label>
                                 <input
                                     type="text"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-primary/50 transition-colors"
+                                    className="w-full bg-foreground/5 border border-foreground/10 rounded-lg px-4 py-3 text-sm text-foreground placeholder:text-foreground/20 focus:outline-none focus:border-primary/50 transition-colors"
                                     placeholder="Your name"
                                     required
                                 />
                             </div>
                             <div>
-                                <label className="text-xs text-white/40 uppercase tracking-wider mb-1 block font-mono">Email</label>
+                                <label className="text-xs text-foreground/40 uppercase tracking-wider mb-1 block font-mono">Email</label>
                                 <input
                                     type="email"
                                     value={formData.email}
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-primary/50 transition-colors"
+                                    className="w-full bg-foreground/5 border border-foreground/10 rounded-lg px-4 py-3 text-sm text-foreground placeholder:text-foreground/20 focus:outline-none focus:border-primary/50 transition-colors"
                                     placeholder="you@email.com"
                                     required
                                 />
@@ -161,11 +161,11 @@ export default function HireMePage() {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="text-xs text-white/40 uppercase tracking-wider mb-1 block font-mono">Project Type</label>
+                                <label className="text-xs text-foreground/40 uppercase tracking-wider mb-1 block font-mono">Project Type</label>
                                 <select
                                     value={formData.project}
                                     onChange={(e) => setFormData({ ...formData, project: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-primary/50 transition-colors"
+                                    className="w-full bg-foreground/5 border border-foreground/10 rounded-lg px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary/50 transition-colors"
                                 >
                                     <option value="" className="bg-surface">Select type</option>
                                     <option value="web-app" className="bg-surface">Web Application</option>
@@ -176,11 +176,11 @@ export default function HireMePage() {
                                 </select>
                             </div>
                             <div>
-                                <label className="text-xs text-white/40 uppercase tracking-wider mb-1 block font-mono">Budget Range</label>
+                                <label className="text-xs text-foreground/40 uppercase tracking-wider mb-1 block font-mono">Budget Range</label>
                                 <select
                                     value={formData.budget}
                                     onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-primary/50 transition-colors"
+                                    className="w-full bg-foreground/5 border border-foreground/10 rounded-lg px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary/50 transition-colors"
                                 >
                                     <option value="" className="bg-surface">Select range</option>
                                     <option value="1k-5k" className="bg-surface">$1,000 - $5,000</option>
@@ -192,12 +192,12 @@ export default function HireMePage() {
                         </div>
 
                         <div>
-                            <label className="text-xs text-white/40 uppercase tracking-wider mb-1 block font-mono">Message</label>
+                            <label className="text-xs text-foreground/40 uppercase tracking-wider mb-1 block font-mono">Message</label>
                             <textarea
                                 value={formData.message}
                                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                                 rows={4}
-                                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-primary/50 transition-colors resize-none"
+                                className="w-full bg-foreground/5 border border-foreground/10 rounded-lg px-4 py-3 text-sm text-foreground placeholder:text-foreground/20 focus:outline-none focus:border-primary/50 transition-colors resize-none"
                                 placeholder="Tell me about your project..."
                                 required
                             />
@@ -205,7 +205,7 @@ export default function HireMePage() {
 
                         <button
                             type="submit"
-                            className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-sm font-medium text-white bg-gradient-to-r from-primary to-accent hover:shadow-[0_0_30px_-5px_rgba(124,58,237,0.5)] transition-all"
+                            className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-sm font-medium text-foreground bg-gradient-to-r from-primary to-accent hover:shadow-[0_0_30px_-5px_rgba(124,58,237,0.5)] transition-all"
                         >
                             {submitted ? (
                                 <>

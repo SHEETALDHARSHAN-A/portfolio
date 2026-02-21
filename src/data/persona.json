@@ -9,11 +9,6 @@
             "emoji": "👋"
         },
         {
-            "id": "skills",
-            "label": "What's your tech stack?",
-            "emoji": "⚡"
-        },
-        {
             "id": "experience",
             "label": "Tell me about your experience",
             "emoji": "💼"

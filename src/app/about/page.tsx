@@ -30,11 +30,11 @@ export default function AboutPage() {
                     className="text-center"
                 >
                     <p className="text-xs uppercase tracking-widest text-primary mb-4 font-mono">About Me</p>
-                    <h1 className="text-4xl md:text-6xl font-bold text-white font-display mb-6">
+                    <h1 className="text-4xl md:text-6xl font-bold text-foreground font-display mb-6">
                         Turning ideas into{" "}
                         <span className="gradient-text">digital reality</span>
                     </h1>
-                    <p className="text-text-muted text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
+                    <p className="text-muted-foreground text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
                         I&apos;m Sheetal Dharshan, a full-stack developer and AI Enthusiast based in India.
                         I specialize in building beautiful, performant web applications that solve
                         real-world problems and delight users.
@@ -48,11 +48,11 @@ export default function AboutPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     {values.map((value, i) => (
                         <GlassCard key={value.title} delay={i * 0.1} className="p-6">
-                            <div className="mb-4 p-3 bg-white/5 rounded-lg w-fit group-hover:bg-primary/10 transition-colors">
+                            <div className="mb-4 p-3 bg-foreground/5 rounded-lg w-fit group-hover:bg-primary/10 transition-colors">
                                 <value.icon className="w-6 h-6 text-primary group-hover:text-accent transition-colors" />
                             </div>
-                            <h3 className="text-lg font-bold text-white mb-2">{value.title}</h3>
-                            <p className="text-sm text-text-muted leading-relaxed">{value.description}</p>
+                            <h3 className="text-lg font-bold text-foreground mb-2">{value.title}</h3>
+                            <p className="text-sm text-muted-foreground leading-relaxed">{value.description}</p>
                         </GlassCard>
                     ))}
                 </div>
@@ -83,8 +83,8 @@ export default function AboutPage() {
                                 {/* Content */}
                                 <div className="glass-card p-6 flex-1">
                                     <span className="text-xs font-mono text-primary mb-1 block">{item.year}</span>
-                                    <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
-                                    <p className="text-sm text-text-muted leading-relaxed">{item.description}</p>
+                                    <h3 className="text-lg font-bold text-foreground mb-2">{item.title}</h3>
+                                    <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
                                 </div>
                             </motion.div>
                         ))}
@@ -95,7 +95,7 @@ export default function AboutPage() {
             {/* Personal Note */}
             <section className="px-6 max-w-3xl mx-auto">
                 <GlassCard className="p-8 md:p-12 text-center">
-                    <p className="text-lg md:text-xl text-white/80 leading-relaxed italic font-display">
+                    <p className="text-lg md:text-xl text-foreground/80 leading-relaxed italic font-display">
                         &quot;I believe the best technology is invisible — it just works, beautifully.
                         My goal is to create experiences that feel effortless while solving complex problems.&quot;
                     </p>

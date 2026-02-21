@@ -14,8 +14,8 @@ const GradientButton = ({
 }) => {
     const classes = cn(
         "relative inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium text-white transition-all duration-300",
-        "bg-gradient-to-r from-primary to-accent hover:shadow-[0_0_30px_-5px_rgba(124,58,237,0.5)] hover:-translate-y-0.5",
-        "border border-primary/30",
+        "bg-gradient-to-r from-purple-600 via-fuchsia-600 to-purple-600 hover:shadow-[0_0_30px_-5px_rgba(147,51,234,0.6)] hover:-translate-y-0.5 border border-purple-500/50",
+        "bg-[length:200%_auto] hover:bg-[position:100%_center]",
         className
     );
 
