@@ -119,54 +119,55 @@ export const BentoGridSection = () => {
                     </div>
                     <BorderBeam size={250} duration={12} delay={3} colorFrom="#a855f7" colorTo="#06b6d4" />
                 </motion.div>
-
                 {/* ───────── Card 3 — Skills: Modern Tech Section ───────── */}
                 <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: 0.2 }}
-                    className="md:row-span-2 relative overflow-hidden rounded-3xl border border-white/[0.05] bg-black min-h-[500px] flex flex-col items-center pt-10"
+                    className="md:row-span-2 relative overflow-hidden rounded-3xl border border-white/[0.05] bg-black flex flex-col items-center pt-10"
                 >
                     {/* Background Glow */}
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-teal-500/15 rounded-full blur-[110px] pointer-events-none" />
 
-                    <div className="relative z-10 w-full px-6 flex flex-col items-center">
-                        <h3 className="text-2xl md:text-3xl font-display font-bold text-white text-center mb-10 max-w-[280px] leading-tight tracking-tight">
-                            Enthusiastic About Innovative and futuristic Tech
-                        </h3>
+                    <div className="relative z-10 w-full h-full px-6 flex flex-col items-center justify-between">
+                        <div className="flex flex-col items-center w-full">
+                            <h3 className="text-2xl md:text-3xl font-display font-bold text-white text-center mb-10 max-w-[280px] leading-tight tracking-tight">
+                                Enthusiastic About Innovative and futuristic Tech
+                            </h3>
 
-                        {/* Tech Badges Rows - Marquee */}
-                        <div className="flex flex-col gap-5 w-full items-center mb-12 overflow-hidden py-2">
-                            {/* Row 1 */}
-                            <MarqueeRow direction="left" speed={30}>
-                                <SkillBadge label="React" icon="https://svgl.app/library/react.svg" />
-                                <SkillBadge label="Next.js" icon="https://svgl.app/library/nextjs_icon_dark.svg" />
-                                <SkillBadge label="Tailwind CSS" icon="https://svgl.app/library/tailwindcss.svg" />
-                                <SkillBadge label="TypeScript" icon="https://svgl.app/library/typescript.svg" />
-                                <SkillBadge label="JavaScript" icon="https://svgl.app/library/javascript.svg" />
-                            </MarqueeRow>
+                            {/* Tech Badges Rows - Marquee */}
+                            <div className="flex flex-col gap-5 w-full items-center mb-12 overflow-hidden py-2">
+                                {/* Row 1 */}
+                                <MarqueeRow direction="left" speed={30}>
+                                    <SkillBadge label="React" icon="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" />
+                                    <SkillBadge label="Next.js" icon="https://cdn.simpleicons.org/nextdotjs/white" />
+                                    <SkillBadge label="Tailwind CSS" icon="https://cdn.simpleicons.org/tailwindcss/06B6D4" />
+                                    <SkillBadge label="TypeScript" icon="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg" />
+                                    <SkillBadge label="JavaScript" icon="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" />
+                                </MarqueeRow>
 
-                            {/* Row 2 */}
-                            <MarqueeRow direction="right" speed={35}>
-                                <SkillBadge label="Node.js" icon="https://svgl.app/library/node-js.svg" />
-                                <SkillBadge label="Express.js" icon="https://svgl.app/library/express.svg" />
-                                <SkillBadge label="MongoDB" icon="https://svgl.app/library/mongodb.svg" />
-                                <SkillBadge label="Supabase" icon="https://svgl.app/library/supabase.svg" />
-                                <SkillBadge label="Postman" icon="https://svgl.app/library/postman.svg" />
-                            </MarqueeRow>
+                                {/* Row 2 */}
+                                <MarqueeRow direction="right" speed={35}>
+                                    <SkillBadge label="Node.js" icon="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nodejs/nodejs-original.svg" />
+                                    <SkillBadge label="Express.js" icon="https://cdn.simpleicons.org/express/white" />
+                                    <SkillBadge label="MongoDB" icon="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mongodb/mongodb-original.svg" />
+                                    <SkillBadge label="Supabase" icon="https://cdn.simpleicons.org/supabase/3ECF8E" />
+                                    <SkillBadge label="Postman" icon="https://cdn.simpleicons.org/postman/FF6C37" />
+                                </MarqueeRow>
 
-                            {/* Row 3 */}
-                            <MarqueeRow direction="left" speed={40}>
-                                <SkillBadge label="Vercel" icon="https://svgl.app/library/vercel.svg" />
-                                <SkillBadge label="Github" icon="https://svgl.app/library/github.svg" />
-                                <SkillBadge label="Git" icon="https://svgl.app/library/git.svg" />
-                                <SkillBadge label="Figma" icon="https://svgl.app/library/figma.svg" />
-                                <SkillBadge label="VS Code" icon="https://svgl.app/library/vscode.svg" />
-                            </MarqueeRow>
+                                {/* Row 3 */}
+                                <MarqueeRow direction="left" speed={40}>
+                                    <SkillBadge label="Vercel" icon="https://cdn.simpleicons.org/vercel/white" />
+                                    <SkillBadge label="Github" icon="https://cdn.simpleicons.org/github/white" />
+                                    <SkillBadge label="Git" icon="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg" />
+                                    <SkillBadge label="Figma" icon="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/figma/figma-original.svg" />
+                                    <SkillBadge label="VS Code" icon="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vscode/vscode-original.svg" />
+                                </MarqueeRow>
+                            </div>
                         </div>
 
-                        {/* Browser Mockup */}
+                        {/* Browser Mockup - sticks to the bottom now */}
                         <div className="w-full max-w-[320px] rounded-t-xl overflow-hidden shadow-2xl border-x border-t border-foreground/10 bg-[#0a0a0a]">
                             <div className="h-6 bg-teal-500/20 px-3 flex items-center gap-1.5 border-b border-foreground/10">
                                 <div className="w-1.5 h-1.5 rounded-full bg-red-500/50" />
@@ -177,14 +178,14 @@ export const BentoGridSection = () => {
                                     <div className="w-8 h-1 rounded-full bg-foreground/10" />
                                 </div>
                             </div>
-                            <div className="p-4 space-y-4 h-[120px] bg-gradient-to-b from-teal-500/5 to-transparent">
+                            <div className="p-4 space-y-4 h-[180px] md:h-[200px] bg-gradient-to-b from-teal-500/5 to-transparent">
                                 <div className="w-3/4 h-3 rounded-full bg-foreground/10 mx-auto" />
                                 <div className="w-1/2 h-2 rounded-full bg-foreground/5 mx-auto" />
-                                <div className="w-1/4 h-6 rounded-lg bg-teal-500/10 mx-auto" />
-                                <div className="flex gap-3 pt-2">
-                                    <div className="flex-1 h-20 rounded-lg bg-foreground/[0.03]" />
-                                    <div className="flex-1 h-20 rounded-lg bg-foreground/[0.03]" />
-                                    <div className="flex-1 h-20 rounded-lg bg-foreground/[0.03]" />
+                                <div className="w-1/4 h-8 rounded-lg bg-teal-500/10 mx-auto mt-6" />
+                                <div className="flex gap-3 pt-6">
+                                    <div className="flex-1 h-24 md:h-28 rounded-lg bg-foreground/[0.03]" />
+                                    <div className="flex-1 h-24 md:h-28 rounded-lg bg-foreground/[0.03]" />
+                                    <div className="flex-1 h-24 md:h-28 rounded-lg bg-foreground/[0.03]" />
                                 </div>
                             </div>
                         </div>
