@@ -102,19 +102,28 @@ const SyncNode = React.forwardRef<HTMLDivElement, {
                     </motion.div>
                 </AnimatePresence>
 
-                {/* Status Bubble - Quadrant based positioning */}
+                {/* Status Bubble - Quadrant based positioning with Pointer */}
                 <motion.div
                     initial={{ opacity: 0, scale: 0.8, x: isRightSide ? -15 : 15, y: isBottom ? -15 : 15 }}
                     animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
                     transition={{ delay, duration: 1.2, type: "spring" }}
                     className={cn(
                         "absolute z-50 pointer-events-none whitespace-nowrap",
-                        isBottom ? "top-[calc(100%+5px)] md:top-[calc(100%+10px)]" : "bottom-[calc(100%+5px)] md:bottom-[calc(100%+10px)]",
+                        // Base positioning
+                        isBottom ? "top-[calc(100%+8px)] md:top-[calc(100%+12px)]" : "bottom-[calc(100%+8px)] md:bottom-[calc(100%+12px)]",
                         isRightSide ? "left-[60%]" : "right-[60%]"
                     )}
                 >
-                    <div className="relative group overflow-hidden bg-black/40 backdrop-blur-2xl border border-white/[0.08] px-2.5 py-1.5 md:px-3 md:py-2 rounded-lg md:rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex items-center gap-2 min-w-[120px] md:min-w-[140px]">
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent -translate-x-full animate-[shimmer_3s_infinite]" />
+                    <div className="relative group bg-black/40 backdrop-blur-2xl border border-white/[0.08] px-2.5 py-1.5 md:px-3 md:py-2 rounded-lg md:rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex items-center gap-2 min-w-[120px] md:min-w-[140px]">
+                        {/* Sharp Edge Pointer */}
+                        <div className={cn(
+                            "absolute w-3 h-3 bg-black/40 backdrop-blur-2xl border-white/[0.08] transform rotate-45 -z-10",
+                            isBottom ? "-top-1.5 border-t border-l" : "-bottom-1.5 border-b border-r",
+                            isRightSide ? "left-4" : "right-4"
+                        )} />
+
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent -translate-x-full animate-[shimmer_3s_infinite] rounded-lg md:rounded-xl overflow-hidden pointer-events-none" />
+
                         <div className="relative flex items-center justify-center shrink-0">
                             <span className="absolute w-1.5 h-1.5 rounded-full bg-emerald-500/40 animate-ping" />
                             <span className="relative w-1 h-1 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
@@ -139,7 +148,7 @@ const SyncNode = React.forwardRef<HTMLDivElement, {
                             </AnimatePresence>
                         </div>
                     </div>
-                    <div className="absolute inset-0 -z-10 bg-primary/5 blur-xl scale-125" />
+                    <div className="absolute inset-0 -z-20 bg-primary/5 blur-xl scale-125" />
                 </motion.div>
             </div>
         </div>
