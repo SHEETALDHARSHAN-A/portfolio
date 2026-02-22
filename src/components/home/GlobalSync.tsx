@@ -57,6 +57,7 @@ const SyncNode = React.forwardRef<HTMLDivElement, {
 
     const identity = IDENTITY_POOL[poolIndices[currentIndex]];
     const isRightSide = position.x > 50;
+    const isBottom = position.y > 50;
 
     return (
         <div
@@ -67,10 +68,10 @@ const SyncNode = React.forwardRef<HTMLDivElement, {
             }}
             className="absolute -translate-x-1/2 -translate-y-1/2 flex items-center z-30 pointer-events-none"
         >
-            <div className="flex flex-col items-center gap-2 relative">
+            <div className="flex flex-col items-center gap-1.5 relative">
                 {/* Memoji Node */}
-                <div className="relative w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center transition-all duration-300">
-                    <div className="absolute inset-0 bg-primary/5 blur-2xl rounded-full" />
+                <div className="relative w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center transition-all duration-300">
+                    <div className="absolute inset-0 bg-primary/5 blur-xl rounded-full" />
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={identity.spriteIdx}
@@ -94,30 +95,29 @@ const SyncNode = React.forwardRef<HTMLDivElement, {
                         exit={{ y: -5, opacity: 0 }}
                         className="flex flex-col items-center"
                     >
-                        <div className="flex items-center gap-1 bg-black/40 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-white/5 shadow-lg">
-                            <span className="text-[7px] text-white/40 font-bold uppercase">{identity.flag}</span>
-                            <span className="text-[8px] font-black text-white/80 uppercase tracking-widest">{identity.city}</span>
+                        <div className="flex items-center gap-1 bg-black/40 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/5 shadow-lg">
+                            <span className="text-[6px] text-white/40 font-bold uppercase">{identity.flag}</span>
+                            <span className="text-[7px] font-black text-white/80 uppercase tracking-widest">{identity.city}</span>
                         </div>
                     </motion.div>
                 </AnimatePresence>
 
-                {/* Status Bubble - Robust positioning relative to node */}
+                {/* Status Bubble - Quadrant based positioning */}
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.8, x: isRightSide ? -10 : 10, y: 10 }}
+                    initial={{ opacity: 0, scale: 0.8, x: isRightSide ? -15 : 15, y: isBottom ? -15 : 15 }}
                     animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
                     transition={{ delay, duration: 1.2, type: "spring" }}
                     className={cn(
                         "absolute z-50 pointer-events-none whitespace-nowrap",
-                        // Dynamic alignment based on side
-                        "top-[-75px]", // Positioned above the node
-                        isRightSide ? "right-[10%]" : "left-[10%]"
+                        isBottom ? "top-[calc(100%+5px)] md:top-[calc(100%+10px)]" : "bottom-[calc(100%+5px)] md:bottom-[calc(100%+10px)]",
+                        isRightSide ? "left-[60%]" : "right-[60%]"
                     )}
                 >
-                    <div className="relative group overflow-hidden bg-black/40 backdrop-blur-2xl border border-white/[0.08] px-3.5 py-2.5 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex items-center gap-3 min-w-[140px] md:min-w-[160px]">
+                    <div className="relative group overflow-hidden bg-black/40 backdrop-blur-2xl border border-white/[0.08] px-2.5 py-1.5 md:px-3 md:py-2 rounded-lg md:rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex items-center gap-2 min-w-[120px] md:min-w-[140px]">
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent -translate-x-full animate-[shimmer_3s_infinite]" />
                         <div className="relative flex items-center justify-center shrink-0">
-                            <span className="absolute w-2 h-2 rounded-full bg-emerald-500/40 animate-ping" />
-                            <span className="relative w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
+                            <span className="absolute w-1.5 h-1.5 rounded-full bg-emerald-500/40 animate-ping" />
+                            <span className="relative w-1 h-1 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
                         </div>
 
                         <div className="flex flex-col overflow-hidden">
@@ -129,10 +129,10 @@ const SyncNode = React.forwardRef<HTMLDivElement, {
                                     exit={{ opacity: 0, y: -3 }}
                                     className="flex flex-col"
                                 >
-                                    <p className="text-[9px] md:text-[10px] font-black text-white/90 tracking-wider uppercase truncate">
+                                    <p className="text-[8px] md:text-[9px] font-black text-white/90 tracking-wider uppercase truncate">
                                         {identity.status}
                                     </p>
-                                    <span className="text-[7px] font-bold text-white/30 uppercase mt-0.5 tracking-[0.1em] truncate">
+                                    <span className="text-[6px] md:text-[7px] font-bold text-white/30 uppercase mt-0.5 tracking-[0.1em] truncate">
                                         LIVE SYNC • {identity.name}
                                     </span>
                                 </motion.div>
@@ -155,18 +155,18 @@ export const GlobalSync = () => {
     const node3Ref = useRef(null);
     const node4Ref = useRef(null);
 
-    // Optimized positions for grid layout
+    // Optimized positions to fit the smaller ~450px parent container
     const positions = [
-        { x: 18, y: 35 }, // Top Left
-        { x: 82, y: 35 }, // Top Right
+        { x: 22, y: 40 }, // Top Left
+        { x: 78, y: 40 }, // Top Right
         { x: 75, y: 72 }, // Bottom Right
         { x: 25, y: 72 }  // Bottom Left
     ];
 
     return (
-        <div ref={containerRef} className="relative w-full h-full min-h-[600px] overflow-hidden flex items-center justify-center p-8 bg-black/20 font-inter">
+        <div ref={containerRef} className="relative w-full h-full overflow-hidden flex items-center justify-center p-4 md:p-8 bg-black/20 font-inter">
             {/* Premium Header */}
-            <div className="absolute top-10 left-0 w-full flex flex-col items-center z-50 pointer-events-none">
+            <div className="absolute top-6 left-0 w-full flex flex-col items-center z-50 pointer-events-none">
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -175,13 +175,13 @@ export const GlobalSync = () => {
                 >
                     <div className="flex items-center gap-2 mb-2">
                         <div className="h-[1px] w-8 bg-gradient-to-r from-transparent to-primary/40" />
-                        <span className="text-[10px] font-black text-primary/80 uppercase tracking-[0.4em] blur-[0.3px]">Our Network</span>
+                        <span className="text-[9px] font-black text-primary/80 uppercase tracking-[0.4em] blur-[0.3px]">Our Network</span>
                         <div className="h-[1px] w-8 bg-gradient-to-l from-transparent to-primary/40" />
                     </div>
-                    <h2 className="text-2xl md:text-3xl font-black text-white tracking-widest uppercase mb-1">
+                    <h2 className="text-xl md:text-2xl font-black text-white tracking-widest uppercase mb-1">
                         Global <span className="text-primary blur-[0.4px]">Presence</span>
                     </h2>
-                    <p className="text-[8px] md:text-[9px] text-white/30 uppercase tracking-[0.3em] font-medium italic">
+                    <p className="text-[7px] md:text-[8px] text-white/30 uppercase tracking-[0.3em] font-medium italic">
                         Real-time collaboration across boundaries
                     </p>
                 </motion.div>
@@ -196,9 +196,9 @@ export const GlobalSync = () => {
             {/* Central Node (Me - Borderless) */}
             <div
                 ref={centerRef}
-                className="relative z-40 w-24 h-24 md:w-28 md:h-28 flex items-center justify-center group pointer-events-none mt-12"
+                className="relative z-40 w-20 h-20 md:w-24 md:h-24 flex items-center justify-center group pointer-events-none mt-8"
             >
-                <div className="absolute inset-0 bg-primary/10 blur-[60px] rounded-full opacity-60" />
+                <div className="absolute inset-0 bg-primary/10 blur-[50px] rounded-full opacity-60" />
                 <img
                     src="/memoji.svg"
                     alt="Me"
