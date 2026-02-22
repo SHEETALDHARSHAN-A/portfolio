@@ -1,16 +1,26 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Globe, ChevronDown, Sparkles } from "lucide-react";
+import { Send, ExternalLink, ChevronDown, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import persona from "@/data/persona.json";
 import { BorderBeam } from "@/components/ui/border-beam";
+import Image from "next/image";
+
+interface ChatProject {
+    title: string;
+    description: string;
+    tags: string[];
+    link?: string;
+    image_url?: string;
+}
 
 interface Message {
     id: string;
     type: "bot" | "user";
     text: string;
     timestamp: Date;
+    projects?: ChatProject[];
 }
 
 interface ChatBotProps {
@@ -25,9 +35,71 @@ const TypingIndicator = () => (
     </div>
 );
 
+const ChatProjectCard = ({ project, index }: { project: ChatProject; index: number }) => (
+    <motion.a
+        href={project.link || "#"}
+        target={project.link ? "_blank" : undefined}
+        rel="noopener noreferrer"
+        initial={{ opacity: 0, y: 15, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.35, delay: index * 0.1, ease: "easeOut" }}
+        className="group block rounded-xl overflow-hidden border border-foreground/[0.08] bg-background/60 backdrop-blur-sm hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 cursor-pointer"
+    >
+        {/* Image */}
+        <div className="relative h-28 w-full overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent z-10" />
+            {project.image_url ? (
+                <Image
+                    src={project.image_url + "?auto=format&fit=crop&q=80&w=400"}
+                    alt={project.title}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+            ) : (
+                <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20" />
+            )}
+            {/* Link indicator */}
+            {project.link && (
+                <div className="absolute top-2 right-2 z-20 w-7 h-7 rounded-full bg-background/70 backdrop-blur-md flex items-center justify-center border border-foreground/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <ExternalLink className="w-3.5 h-3.5 text-primary" />
+                </div>
+            )}
+        </div>
+
+        {/* Content */}
+        <div className="p-3">
+            <h4 className="text-sm font-display font-bold text-foreground mb-1 group-hover:text-primary transition-colors">
+                {project.title}
+            </h4>
+            <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2 mb-2">
+                {project.description}
+            </p>
+            {/* Tags */}
+            <div className="flex flex-wrap gap-1">
+                {project.tags?.slice(0, 3).map((tag) => (
+                    <span
+                        key={tag}
+                        className="px-2 py-0.5 rounded-md text-[9px] font-mono font-medium bg-primary/10 text-primary/80 border border-primary/10"
+                    >
+                        {tag}
+                    </span>
+                ))}
+                {project.tags && project.tags.length > 3 && (
+                    <span className="px-2 py-0.5 rounded-md text-[9px] font-mono text-muted-foreground">
+                        +{project.tags.length - 3}
+                    </span>
+                )}
+            </div>
+        </div>
+    </motion.a>
+);
+
 const formatMessage = (text: string) => {
-    // Parse markdown-like syntax for rich display
-    return text.split("\n").map((line, i) => {
+    // Remove the [SHOW_PROJECTS] marker from displayed text
+    const cleanText = text.replace(/\[SHOW_PROJECTS\]/g, "").trim();
+    if (!cleanText) return null;
+
+    return cleanText.split("\n").map((line, i) => {
         // Bold text
         const boldParsed = line.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground font-semibold">$1</strong>');
         // Links
@@ -87,7 +159,7 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
         return () => clearTimeout(timeoutId);
     }, [messages, isTyping]);
 
-    const askGroq = async (userText: string, lang: string, history: Message[]) => {
+    const askGroq = async (userText: string, lang: string, history: Message[]): Promise<{ content: string; projects?: ChatProject[] }> => {
         try {
             const formattedHistory = history.map(m => ({
                 role: m.type === "bot" ? "assistant" : "user",
@@ -104,10 +176,13 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
             });
 
             const data = await response.json();
-            return data.content || "I'm having a bit of trouble connecting to my brain right now. Please try again!";
+            return {
+                content: data.content || "I'm having a bit of trouble connecting to my brain right now. Please try again!",
+                projects: data.projects
+            };
         } catch (error) {
             console.error("Chat Error:", error);
-            return "Something went wrong. Let's try that again!";
+            return { content: "Something went wrong. Let's try that again!" };
         }
     };
 
@@ -122,14 +197,15 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
         setMessages(newHistory);
         setIsTyping(true);
 
-        const answer = await askGroq(questionLabel, language, messages);
+        const { content, projects } = await askGroq(questionLabel, language, messages);
 
         setIsTyping(false);
         const botMsg: Message = {
             id: `bot-${Date.now()}`,
             type: "bot",
-            text: answer,
+            text: content,
             timestamp: new Date(),
+            projects,
         };
         setMessages([...newHistory, botMsg]);
     };
@@ -149,14 +225,15 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
         setInputValue("");
         setIsTyping(true);
 
-        const answer = await askGroq(currentInput, language, messages);
+        const { content, projects } = await askGroq(currentInput, language, messages);
 
         setIsTyping(false);
         const botMsg: Message = {
             id: `bot-${Date.now()}`,
             type: "bot",
-            text: answer,
+            text: content,
             timestamp: new Date(),
+            projects,
         };
         setMessages([...newHistory, botMsg]);
     };
@@ -164,7 +241,7 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
     const currentLang = persona.languages.find((l) => l.code === language);
 
     return (
-        <div className={cn("w-full mx-auto transition-all duration-500", isHeroVariant ? "max-w-none flex flex-col" : "max-w-md")} style={isHeroVariant ? { height: '65vh', minHeight: '350px', maxHeight: '700px' } : {}}> 
+        <div className={cn("w-full mx-auto transition-all duration-500", isHeroVariant ? "max-w-none flex flex-col" : "max-w-md")} style={isHeroVariant ? { height: '65vh', minHeight: '350px', maxHeight: '700px' } : {}}>
             {/* Avatar Section */}
             {!isHeroVariant && (
                 <motion.div
@@ -234,6 +311,15 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                                 >
                                     <div className="relative z-10">
                                         {formatMessage(msg.text)}
+
+                                        {/* Project Cards */}
+                                        {msg.projects && msg.projects.length > 0 && (
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+                                                {msg.projects.map((project, idx) => (
+                                                    <ChatProjectCard key={project.title} project={project} index={idx} />
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
 
                                     {/* Subtle timestamp on hover */}
@@ -263,18 +349,18 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                 </div>
 
                 {/* Interaction Footer */}
-                <div className="p-6 bg-gradient-to-b from-transparent to-foreground/[0.02] border-t border-foreground/[0.08] space-y-5">
-                    {/* Quick Actions Grid */}
-                    <div className="flex flex-wrap items-center justify-center gap-2">
+                <div className="p-3 md:p-6 bg-gradient-to-b from-transparent to-foreground/[0.02] border-t border-foreground/[0.08] space-y-3 md:space-y-5">
+                    {/* Quick Actions — horizontal scroll on mobile, wrap on desktop */}
+                    <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide pb-1 md:flex-wrap md:justify-center md:overflow-visible" style={{ scrollbarWidth: "none" }}>
                         {persona.suggestedQuestions.map((q) => (
                             <button
                                 key={q.id}
                                 onClick={() => handleQuestion(q.id, q.label)}
                                 disabled={isTyping}
                                 className={cn(
-                                    "px-4 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all duration-300 disabled:opacity-50 flex items-center gap-2",
+                                    "px-2.5 py-1 md:px-3 md:py-1.5 rounded-full text-[8px] md:text-[9px] font-semibold uppercase tracking-wide transition-all duration-300 disabled:opacity-50 flex items-center gap-1 whitespace-nowrap shrink-0",
                                     q.id === "projects"
-                                        ? "bg-primary/10 border border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground hover:scale-105 active:scale-95 shadow-lg shadow-primary/5"
+                                        ? "bg-primary/10 border border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground hover:scale-105 active:scale-95 shadow-sm shadow-primary/5"
                                         : "bg-foreground/5 border border-foreground/10 text-foreground/60 hover:text-foreground hover:bg-foreground/10 hover:border-foreground/20"
                                 )}
                             >
@@ -284,9 +370,9 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                     </div>
 
                     {/* Smart Input Bar */}
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 md:gap-3">
                         <div className="relative flex-1 group">
-                            <div className="absolute -inset-px bg-gradient-to-r from-primary/30 to-accent/30 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition duration-500" />
+                            <div className="absolute -inset-px bg-gradient-to-r from-primary/30 to-accent/30 rounded-full blur opacity-0 group-focus-within:opacity-100 transition duration-500" />
                             <input
                                 type="text"
                                 value={inputValue}
@@ -294,15 +380,15 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                                 onKeyDown={(e) => e.key === "Enter" && handleCustomInput()}
                                 placeholder="Message Neural Interface..."
                                 disabled={isTyping}
-                                className="relative w-full bg-background/60 border border-foreground/10 rounded-2xl px-6 py-4 text-sm text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-primary/50 transition-all disabled:opacity-50 backdrop-blur-md"
+                                className="relative w-full bg-background/60 border border-foreground/10 rounded-full px-4 py-2.5 md:px-6 md:py-3 text-xs md:text-sm text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-primary/50 transition-all disabled:opacity-50 backdrop-blur-md"
                             />
                         </div>
                         <button
                             onClick={handleCustomInput}
                             disabled={isTyping || !inputValue.trim()}
-                            className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center text-primary-foreground hover:scale-105 active:scale-95 transition-all disabled:opacity-50 shadow-xl shadow-primary/30"
+                            className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground hover:scale-105 active:scale-95 transition-all disabled:opacity-50 shadow-xl shadow-primary/30 shrink-0"
                         >
-                            <Send className="w-5 h-5" />
+                            <Send className="w-4 h-4" />
                         </button>
                     </div>
                 </div>

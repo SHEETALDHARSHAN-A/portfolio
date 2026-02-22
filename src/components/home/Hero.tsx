@@ -58,7 +58,7 @@ export const Hero = () => {
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 0.5 }}
-                        className="w-full max-w-5xl"
+                        className="w-full max-w-3xl px-4"
                     >
                         <ChatBot isHeroVariant={true} />
                     </motion.div>

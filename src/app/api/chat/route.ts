@@ -13,7 +13,7 @@ export async function POST(req: Request) {
         // Fetch projects to give context to the AI
         const { data: projects } = await supabase
             .from("projects")
-            .select("title, description, tags, link")
+            .select("title, description, tags, link, image_url")
             .order("order", { ascending: true });
 
         const projectsContext = projects?.map(p =>
@@ -34,7 +34,11 @@ Sheetal specializes in:
 Experience: 2+ years of building web applications.
 Education: Bachelor's in Computer Science.
 
-When asked about projects, mention specific ones from the list above and explain what Sheetal did.
+IMPORTANT INSTRUCTION FOR PROJECT RESPONSES:
+When the user asks about projects, portfolios, or your work, you MUST include the exact marker [SHOW_PROJECTS] on its own line at the END of your response. Write a brief intro sentence before it but do NOT list the projects as text — the frontend will render them as visual cards automatically. Example:
+"Here are some of my notable projects that showcase my skills:
+[SHOW_PROJECTS]"
+
 Keep your responses concise, professional, and matching the persona.
 Respond in the language specified: ${language || "en"}.`;
 
@@ -52,7 +56,13 @@ Respond in the language specified: ${language || "en"}.`;
 
         const content = chatCompletion.choices[0]?.message?.content || "I'm sorry, I couldn't process that.";
 
-        return NextResponse.json({ content });
+        // If the response contains the project marker, include project data
+        const hasProjects = content.includes("[SHOW_PROJECTS]");
+
+        return NextResponse.json({
+            content,
+            ...(hasProjects && { projects: projects || [] })
+        });
     } catch (error: any) {
         console.error("Groq API Error:", error);
         return NextResponse.json({ error: "Failed to fetch from Groq" }, { status: 500 });
