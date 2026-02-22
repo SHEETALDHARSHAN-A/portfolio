@@ -67,10 +67,6 @@ export const BentoGridSection = () => {
                     transition={{ duration: 0.5 }}
                     className="md:col-span-2 relative overflow-hidden rounded-3xl border border-foreground/[0.08] bg-background dark:bg-black min-h-[400px]"
                 >
-                    <div className="absolute top-8 left-8 z-40">
-                        <p className="text-sm text-muted-foreground mb-1 uppercase tracking-wider">Collaboration</p>
-                        <h3 className="text-xl font-display font-bold text-foreground leading-tight">Time-Zone Agnostic</h3>
-                    </div>
 
                     <div className="absolute inset-0 z-10">
                         <GlobalSync />
