@@ -2,8 +2,6 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { ChatBot } from "./ChatBot";
-import { ShootingStars } from "@/components/ui/ShootingStars";
-import { StarsBackground } from "@/components/ui/StarsBackground";
 import { LightRays } from "@/components/ui/light-rays"; // Added import for LightRays
 import { Spotlight } from "@/components/ui/Spotlight";
 import { MemojiAvatar } from "@/components/ui/MemojiAvatar";
@@ -11,26 +9,7 @@ import { MemojiAvatar } from "@/components/ui/MemojiAvatar";
 export const Hero = () => {
     return (
         <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-transparent">
-            {/* Dark Mode Specific Background Effects */}
-            <div className="absolute inset-0 z-0 hidden dark:block">
-                <StarsBackground />
-                <ShootingStars />
-            </div>
 
-            {/* Global Light Rays */}
-            <div className="absolute inset-0 z-0 pointer-events-none">
-                <LightRays
-                    className="opacity-50 dark:opacity-20"
-                    color="rgba(147, 51, 234, 0.4)" // Vibrant purple
-                    count={12}
-                    blur={30}
-                    speed={15}
-                    length="100vh"
-                />
-            </div>
-
-            {/* Spotlight (keeping original for dark mode accent) */}
-            <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="white" />
 
             {/* Content */}
             <div className="relative z-10 w-full max-w-5xl mx-auto px-6 flex flex-col items-center justify-center">

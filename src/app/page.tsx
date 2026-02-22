@@ -1,3 +1,7 @@
+import { LandingSection } from "@/components/home/LandingSection";
+import { Character3D } from "@/components/home/Character3D";
+import { AboutSection } from "@/components/home/AboutSection";
+import { WhatIDoSection } from "@/components/home/WhatIDoSection";
 import { Hero } from "@/components/home/Hero";
 import { BentoGridSection } from "@/components/home/BentoGridSection";
 import { ProjectsSection } from "@/components/home/ProjectsSection";
@@ -7,7 +11,14 @@ import { ArrowRight, Calendar } from "lucide-react";
 
 export default function Home() {
   return (
-    <main>
+    <main className="relative z-10">
+      <Character3D />
+      {/* ── Reference-style sections ── */}
+      <LandingSection />
+      <AboutSection />
+      <WhatIDoSection />
+
+      {/* ── Existing portfolio sections ── */}
       <Hero />
       <BentoGridSection />
       <ProjectsSection />

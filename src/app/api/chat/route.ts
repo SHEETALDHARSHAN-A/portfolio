@@ -63,7 +63,7 @@ Respond in the language specified: ${language || "en"}.`;
             content,
             ...(hasProjects && { projects: projects || [] })
         });
-    } catch (error: any) {
+    } catch (error) {
         console.error("Groq API Error:", error);
         return NextResponse.json({ error: "Failed to fetch from Groq" }, { status: 500 });
     }

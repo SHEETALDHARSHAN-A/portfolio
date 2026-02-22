@@ -34,6 +34,10 @@ export const metadata: Metadata = {
 
 import { ThemeProvider } from "@/components/theme-provider";
 import { AnimatedGridPattern } from "@/components/ui/animated-grid-pattern";
+import { SmoothScroll } from "@/components/layout/SmoothScroll";
+
+import { StarsBackground } from "@/components/ui/StarsBackground";
+import { ShootingStars } from "@/components/ui/ShootingStars";
 
 export default function RootLayout({
   children,
@@ -60,11 +64,18 @@ export default function RootLayout({
                 "[mask-image:radial-gradient(800px_circle_at_center,white,transparent)] inset-x-0 inset-y-[-30%] h-[200%] skew-y-12 fill-black/5 stroke-black/5 dark:fill-white/5 dark:stroke-white/5"
               }
             />
+            {/* Dark Mode Specific Global Stars */}
+            <div className="absolute inset-0 z-0 hidden dark:block">
+              <StarsBackground />
+              <ShootingStars />
+            </div>
           </div>
 
-          <Navbar />
-          {children}
-          <Footer />
+          <SmoothScroll>
+            <Navbar />
+            {children}
+            <Footer />
+          </SmoothScroll>
         </ThemeProvider>
       </body>
     </html>

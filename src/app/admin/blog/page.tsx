@@ -26,7 +26,7 @@ export default function AdminBlogPage() {
     }, []);
 
     const fetchPosts = async () => {
-        const { data, error } = await supabase.from("posts").select("*").order("created_at", { ascending: false });
+        const { data } = await supabase.from("posts").select("*").order("created_at", { ascending: false });
         if (data) setPosts(data);
         setLoading(false);
     };

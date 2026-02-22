@@ -72,13 +72,7 @@ export const BentoGridSection = () => {
                         <GlobalSync />
                     </div>
 
-                    <LightRays
-                        color={isDark ? "rgba(var(--primary), 0.15)" : "rgba(var(--primary), 0.08)"}
-                        count={3}
-                        speed={10}
-                        blur={40}
-                        className="opacity-50"
-                    />
+
                 </motion.div>
 
                 {/* ───────── Card 2 — About Me: Dot Pattern (Purple) ───────── */}
@@ -102,12 +96,7 @@ export const BentoGridSection = () => {
                                 : "fill-purple-400/15"
                         )}
                     />
-                    <LightRays
-                        color={isDark ? "rgba(168, 85, 247, 0.2)" : "rgba(168, 85, 247, 0.12)"}
-                        count={4}
-                        speed={14}
-                        blur={22}
-                    />
+
                     <div className="relative z-10 h-full flex flex-col justify-end p-8">
                         <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center mb-6 border border-foreground/10 overflow-hidden">
                             <Logo className="w-14 h-14 p-1" />
@@ -213,12 +202,7 @@ export const BentoGridSection = () => {
                                 : "fill-amber-500/10"
                         )}
                     />
-                    <LightRays
-                        color={isDark ? "rgba(234, 179, 8, 0.18)" : "rgba(234, 179, 8, 0.08)"}
-                        count={3}
-                        speed={10}
-                        blur={20}
-                    />
+
                     <div className="relative z-10 text-center p-8">
                         <h3 className="text-lg font-display font-bold text-foreground mb-6 leading-tight">
                             Want to start a project together?
@@ -246,12 +230,7 @@ export const BentoGridSection = () => {
                     transition={{ duration: 0.5, delay: 0.4 }}
                     className="md:col-span-2 relative overflow-hidden rounded-3xl border border-foreground/[0.08] bg-background dark:bg-black min-h-[300px]"
                 >
-                    <LightRays
-                        color={isDark ? "rgba(244, 63, 94, 0.2)" : "rgba(6, 182, 212, 0.12)"}
-                        count={6}
-                        speed={8}
-                        blur={28}
-                    />
+
                     <div className="relative z-10 h-full flex flex-col items-center justify-center p-8 text-center">
                         <h3 className="text-2xl font-display font-bold text-foreground/90 leading-snug max-w-sm">
                             Real-world projects that demand excellence

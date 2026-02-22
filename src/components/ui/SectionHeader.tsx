@@ -19,7 +19,7 @@ const SectionHeader = ({
             className="text-center mb-16"
         >
             <h2 className="text-3xl md:text-5xl font-bold text-foreground font-display">
-                {title} <span className="gradient-text">{accent}</span>
+                {title} <span className="gradient-text italic">{accent}</span>
             </h2>
             {subtitle && (
                 <p className="text-muted-foreground mt-4 max-w-xl mx-auto text-sm md:text-base">{subtitle}</p>
