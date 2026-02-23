@@ -20,6 +20,17 @@ const ANIMATION_FILES = [
 const LEGACY_CHARACTER_NODE_PATTERN =
     /(mixamorig|spine|neck|head|arm|leg|hand|foot|hips|thigh|calf|toe|eye|brow|character|body)/i;
 
+const LEGACY_PROP_NODE_NAMES = [
+    "Cube.002",
+    "screenlight",
+    "Keyboard",
+    "Plane",
+    "ground",
+    "Plane.002",
+    "Plane.003",
+    "Plane.004",
+];
+
 const findObjectByNames = (root: THREE.Object3D, names: string[]) => {
     for (const name of names) {
         const node = root.getObjectByName(name);
@@ -136,19 +147,57 @@ const sanitizeAnimationClip = (clip: THREE.AnimationClip) => {
 };
 
 const addLegacyPropsToRig = (legacyScene: THREE.Object3D, rig: THREE.Object3D) => {
-    const legacyPropsRoot = legacyScene.clone(true);
+    let added = 0;
 
-    legacyPropsRoot.traverse((object: any) => {
-        const objectName = (object.name || "").toLowerCase();
-        const isBone = object.isBone === true;
-        const isSkinnedMesh = object.isSkinnedMesh === true;
+    legacyScene.updateWorldMatrix(true, true);
 
-        if (isBone || isSkinnedMesh || LEGACY_CHARACTER_NODE_PATTERN.test(objectName)) {
-            object.visible = false;
-        }
+    LEGACY_PROP_NODE_NAMES.forEach((name) => {
+        const sourceNode = legacyScene.getObjectByName(name);
+        if (!sourceNode) return;
+
+        sourceNode.updateWorldMatrix(true, false);
+
+        const propNode = sourceNode.clone(true);
+        propNode.matrixAutoUpdate = false;
+        propNode.matrix.copy(sourceNode.matrixWorld);
+        propNode.matrix.decompose(propNode.position, propNode.quaternion, propNode.scale);
+
+        propNode.traverse((object: any) => {
+            const objectName = (object.name || "").toLowerCase();
+            const isBone = object.isBone === true;
+            const isSkinnedMesh = object.isSkinnedMesh === true;
+
+            if (isBone || isSkinnedMesh || LEGACY_CHARACTER_NODE_PATTERN.test(objectName)) {
+                object.visible = false;
+                return;
+            }
+
+            if (object.material) {
+                const materials = Array.isArray(object.material) ? object.material : [object.material];
+                materials.forEach((material: any) => {
+                    material.transparent = true;
+                    if (material.opacity === undefined || material.opacity < 0.95) {
+                        material.opacity = 1;
+                    }
+                    material.needsUpdate = true;
+                });
+            }
+        });
+
+        rig.add(propNode);
+        added += 1;
     });
 
-    rig.add(legacyPropsRoot);
+    if (added === 0) {
+        const fallback = legacyScene.clone(true);
+        fallback.traverse((object: any) => {
+            const objectName = (object.name || "").toLowerCase();
+            if (object.isBone || object.isSkinnedMesh || LEGACY_CHARACTER_NODE_PATTERN.test(objectName)) {
+                object.visible = false;
+            }
+        });
+        rig.add(fallback);
+    }
 };
 
 export const Character3D = () => {
