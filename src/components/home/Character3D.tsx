@@ -21,15 +21,17 @@ const LEGACY_CHARACTER_NODE_PATTERN =
     /(mixamorig|spine|neck|head|arm|leg|hand|foot|hips|thigh|calf|toe|eye|brow|character|body)/i;
 
 const LEGACY_PROP_NODE_NAMES = [
-    "Cube.002",
     "screenlight",
     "Keyboard",
-    "Plane",
-    "ground",
     "Plane.002",
     "Plane.003",
     "Plane.004",
 ];
+
+const LEGACY_COMPUTER_NODE_NAMES = ["Keyboard", "Plane.002", "Plane.003", "Plane.004", "screenlight"];
+const LEGACY_COMPUTER_FORWARD_OFFSET = 0.7;
+const LEGACY_COMPUTER_TO_CHARACTER_X_OFFSET = -1.35;
+const HIDE_CHARACTER_MESH_NAMES = ["Object_6"];
 
 const findObjectByNames = (root: THREE.Object3D, names: string[]) => {
     for (const name of names) {
@@ -148,6 +150,8 @@ const sanitizeAnimationClip = (clip: THREE.AnimationClip) => {
 
 const addLegacyPropsToRig = (legacyScene: THREE.Object3D, rig: THREE.Object3D) => {
     let added = 0;
+    const propsGroup = new THREE.Group();
+    propsGroup.name = "legacy-props-group";
 
     legacyScene.updateWorldMatrix(true, true);
 
@@ -158,7 +162,7 @@ const addLegacyPropsToRig = (legacyScene: THREE.Object3D, rig: THREE.Object3D) =
         sourceNode.updateWorldMatrix(true, false);
 
         const propNode = sourceNode.clone(true);
-        propNode.matrixAutoUpdate = false;
+        propNode.matrixAutoUpdate = true;
         propNode.matrix.copy(sourceNode.matrixWorld);
         propNode.matrix.decompose(propNode.position, propNode.quaternion, propNode.scale);
 
@@ -184,7 +188,7 @@ const addLegacyPropsToRig = (legacyScene: THREE.Object3D, rig: THREE.Object3D) =
             }
         });
 
-        rig.add(propNode);
+        propsGroup.add(propNode);
         added += 1;
     });
 
@@ -196,8 +200,11 @@ const addLegacyPropsToRig = (legacyScene: THREE.Object3D, rig: THREE.Object3D) =
                 object.visible = false;
             }
         });
-        rig.add(fallback);
+        propsGroup.add(fallback);
     }
+
+    rig.add(propsGroup);
+    return propsGroup;
 };
 
 export const Character3D = () => {
@@ -275,10 +282,15 @@ export const Character3D = () => {
                 characterRig.add(character);
 
                 const legacyPropsGltf = await loader.loadAsync(LEGACY_SCENE_PATH);
-                addLegacyPropsToRig(legacyPropsGltf.scene, characterRig);
+                const legacyPropsGroup = addLegacyPropsToRig(legacyPropsGltf.scene, characterRig);
 
                 character.traverse((child: any) => {
                     if (child.isMesh) {
+                        if (HIDE_CHARACTER_MESH_NAMES.includes(child.name)) {
+                            child.visible = false;
+                            return;
+                        }
+
                         child.castShadow = false;
                         child.receiveShadow = false;
                         child.frustumCulled = true;
@@ -323,6 +335,21 @@ export const Character3D = () => {
 
                 fitRigToCharacter(characterRig, character, 16);
                 characterRig.position.y += LANDING_RIG_Y_OFFSET;
+
+                if (legacyPropsGroup) {
+                    const rigScale = Math.max(characterRig.scale.x, 0.0001);
+                    const inverseRigScale = 1 / rigScale;
+                    legacyPropsGroup.scale.setScalar(inverseRigScale);
+                    legacyPropsGroup.position.set(0, -0.1, 0.25);
+
+                    LEGACY_COMPUTER_NODE_NAMES.forEach((nodeName) => {
+                        const node = legacyPropsGroup.getObjectByName(nodeName);
+                        if (node) {
+                            node.position.x += LEGACY_COMPUTER_TO_CHARACTER_X_OFFSET;
+                            node.position.z += LEGACY_COMPUTER_FORWARD_OFFSET;
+                        }
+                    });
+                }
 
                 mixer = new THREE.AnimationMixer(character);
 
