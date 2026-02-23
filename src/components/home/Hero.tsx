@@ -2,45 +2,37 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { ChatBot } from "./ChatBot";
-import { LightRays } from "@/components/ui/light-rays"; // Added import for LightRays
-import { Spotlight } from "@/components/ui/Spotlight";
-import { MemojiAvatar } from "@/components/ui/MemojiAvatar";
 
 export const Hero = () => {
     return (
-        <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-transparent">
+        <section className="ref-hero relative min-h-[72vh] md:min-h-[82vh] flex flex-col items-center justify-start overflow-hidden bg-transparent">
 
 
             {/* Content */}
-            <div className="relative z-10 w-full max-w-5xl mx-auto px-6 flex flex-col items-center justify-center">
-                <div className="flex flex-col items-center text-center w-full pt-12 pb-10 mt-6">
-                    {/* Intro Horizontal Group */}
-                    <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 mb-8">
-                        {/* Avatar Area */}
-                        <MemojiAvatar className="mb-0 scale-75 md:scale-100" />
-
-                        {/* Intro Heading Area */}
+            <div className="relative z-10 w-full max-w-6xl mx-auto px-4 md:px-6 flex flex-col items-center justify-start">
+                <div className="w-full pt-4 md:pt-8 pb-6">
+                    <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8">
                         <motion.div
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.7, delay: 0.4 }}
-                            className="text-center md:text-left"
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 0.5 }}
+                            className="w-full max-w-4xl px-0 md:px-2"
                         >
-                            <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold font-display text-foreground tracking-tighter">
-                                Hi, I&apos;m <span className="bg-gradient-to-r from-purple-600 via-fuchsia-500 to-cyan-500 dark:from-purple-400 dark:via-fuchsia-400 dark:to-cyan-400 bg-clip-text text-transparent italic pr-2">SheetalDharshan A</span>
-                            </h1>
+                            <ChatBot isHeroVariant={true} />
                         </motion.div>
-                    </div>
 
-                    {/* Large ChatBot Section */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.5 }}
-                        className="w-full max-w-3xl px-4"
-                    >
-                        <ChatBot isHeroVariant={true} />
-                    </motion.div>
+                        <motion.h2
+                            className="font-display text-4xl md:text-6xl leading-[0.9] md:text-right md:shrink-0"
+                            initial={{ opacity: 0, x: 30 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.7 }}
+                        >
+                            G<span className="ref-hat-h2">ET</span>
+                            <div>
+                                2<span className="ref-do-h2 italic"> KNOW ME</span>
+                            </div>
+                        </motion.h2>
+                    </div>
 
                 </div>
             </div>
