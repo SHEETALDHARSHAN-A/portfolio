@@ -9,12 +9,15 @@ import { SkillsMarquee } from "@/components/home/SkillsMarquee";
 import GradientButton from "@/components/ui/GradientButton";
 import { ArrowRight, Calendar } from "lucide-react";
 
+
 export default function Home() {
   return (
     <main className="relative z-10">
       <Character3D />
       {/* ── Reference-style sections ── */}
       <LandingSection />
+
+
       <AboutSection />
       <WhatIDoSection />
 

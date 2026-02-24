@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { Inter, Space_Grotesk, JetBrains_Mono, Sacramento, Bricolage_Grotesque } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -19,6 +20,31 @@ const space = Space_Grotesk({
 const mono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-jetbrains",
+  display: "swap",
+});
+
+const signature = Sacramento({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-signature",
+  display: "swap",
+});
+
+const modern = Bricolage_Grotesque({
+  subsets: ["latin"],
+  variable: "--font-modern",
+  display: "swap",
+});
+
+const elnath = localFont({
+  src: "./fonts/ELNATH 700.otf",
+  variable: "--font-elnath",
+  display: "swap",
+});
+
+const pavelt = localFont({
+  src: "./fonts/Pavelt 400.otf",
+  variable: "--font-pavelt",
   display: "swap",
 });
 
@@ -45,7 +71,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${space.variable} ${mono.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${space.variable} ${mono.variable} ${signature.variable} ${modern.variable} ${elnath.variable} ${pavelt.variable}`} suppressHydrationWarning>
       <body className="antialiased font-sans bg-background text-foreground transition-colors duration-300">
         <ThemeProvider
           attribute="class"

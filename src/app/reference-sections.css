@@ -21,16 +21,16 @@
 }
 
 .ref-landing-container {
-    width: 94%;
-    max-width: 1400px;
-    margin: auto;
+    width: 100%;
+    max-width: 1800px;
+    margin: 0 auto;
     height: 100%;
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
     min-height: var(--ref-vh);
-    padding: 80px 0 40px;
+    padding: 0;
 }
 
 /* Floating glow circles */
@@ -102,7 +102,7 @@
     margin-bottom: 20px;
     letter-spacing: 0.1em;
     color: var(--ref-accent);
-    font-family: var(--ref-font-display);
+    font-family: var(--font-display);
     text-transform: uppercase;
 }
 
@@ -158,18 +158,10 @@
     }
 
     .ref-landing-intro {
-        position: absolute;
-        top: 45%;
-        right: 68%;
-        transform: translateY(-50%);
         text-align: left;
     }
 
     .ref-landing-info {
-        position: absolute;
-        top: 50%;
-        left: 64%;
-        transform: translateY(-50%);
         text-align: left;
     }
 
@@ -221,10 +213,6 @@
     .ref-landing-role {
         font-size: 28px;
         line-height: 32px;
-    }
-
-    .ref-landing-info {
-        left: 64%;
     }
 }
 
@@ -323,20 +311,21 @@
     max-width: calc(100% - 15px);
 }
 
-.ref-about-content h3 {
+.ref-about-content h2 {
     font-size: 18px;
     text-transform: uppercase;
     letter-spacing: 5px;
-    font-weight: 400;
+    font-weight: 600;
     color: var(--ref-accent);
     margin-bottom: 20px;
     margin-top: 0;
+    line-height: 1.1;
 }
 
 .ref-about-content p {
-    font-size: 20px;
-    font-weight: 600;
-    line-height: 28px;
+    font-size: 18px;
+    font-weight: 300;
+    line-height: 22px;
     letter-spacing: 0.5px;
     word-spacing: 2px;
     color: hsl(var(--foreground) / 0.9);
@@ -352,14 +341,14 @@
         width: 550px;
     }
 
-    .ref-about-content h3 {
+    .ref-about-content h2 {
         font-size: 22px;
         letter-spacing: 6px;
     }
 
     .ref-about-content p {
-        font-size: 28px;
-        line-height: 34px;
+        font-size: 24px;
+        line-height: 28px;
     }
 }
 
@@ -368,14 +357,14 @@
         max-width: calc(100% - 70px);
     }
 
-    .ref-about-content h3 {
+    .ref-about-content h2 {
         font-size: 25px;
         letter-spacing: 7px;
     }
 
     .ref-about-content p {
-        font-size: 33px;
-        line-height: 40px;
+        font-size: 30px;
+        line-height: 36px;
     }
 }
 

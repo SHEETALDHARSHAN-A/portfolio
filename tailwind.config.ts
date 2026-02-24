@@ -32,6 +32,22 @@ const config: Config = {
 				mono: [
 					'var(--font-jetbrains)',
 					'monospace'
+				],
+				signature: [
+					'var(--font-signature)',
+					'cursive'
+				],
+				modern: [
+					'var(--font-modern)',
+					'sans-serif'
+				],
+				elnath: [
+					'var(--font-elnath)',
+					'sans-serif'
+				],
+				pavelt: [
+					'var(--font-pavelt)',
+					'cursive'
 				]
 			},
 			colors: {
