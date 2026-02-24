@@ -296,101 +296,17 @@
 
 /* ─── ABOUT SECTION ─── */
 .ref-about {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     position: relative;
-    width: 94%;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 80px 0;
-}
-
-.ref-about-content {
     width: 100%;
-    max-width: calc(100% - 15px);
+    margin: 0 auto;
+    overflow: hidden;
 }
 
-.ref-about-content h2 {
-    font-size: 18px;
-    text-transform: uppercase;
-    letter-spacing: 5px;
-    font-weight: 600;
-    color: var(--ref-accent);
-    margin-bottom: 20px;
-    margin-top: 0;
-    line-height: 1.1;
-}
-
+/* These sub-classes can be removed as they are handled by Tailwind in AboutSection.tsx */
+.ref-about-content,
+.ref-about-content h2,
 .ref-about-content p {
-    font-size: 18px;
-    font-weight: 300;
-    line-height: 22px;
-    letter-spacing: 0.5px;
-    word-spacing: 2px;
-    color: hsl(var(--foreground) / 0.9);
-    margin: 0;
-}
-
-@media only screen and (min-width: 600px) {
-    .ref-about {
-        justify-content: center;
-    }
-
-    .ref-about-content {
-        width: 550px;
-    }
-
-    .ref-about-content h2 {
-        font-size: 22px;
-        letter-spacing: 6px;
-    }
-
-    .ref-about-content p {
-        font-size: 24px;
-        line-height: 28px;
-    }
-}
-
-@media only screen and (min-width: 768px) {
-    .ref-about-content {
-        max-width: calc(100% - 70px);
-    }
-
-    .ref-about-content h2 {
-        font-size: 25px;
-        letter-spacing: 7px;
-    }
-
-    .ref-about-content p {
-        font-size: 30px;
-        line-height: 36px;
-    }
-}
-
-@media only screen and (min-width: 1025px) {
-    .ref-about {
-        justify-content: flex-end;
-        min-height: 80vh;
-        padding: 0;
-    }
-
-    .ref-about-content {
-        width: 50%;
-        padding: 0;
-    }
-
-    .ref-about-content p {
-        font-size: 1.9vw;
-        line-height: 2.3vw;
-    }
-}
-
-@media only screen and (min-width: 1950px) {
-    .ref-about-content p {
-        font-size: 2.5rem;
-        line-height: 2.7rem;
-    }
+    display: none;
 }
 
 
