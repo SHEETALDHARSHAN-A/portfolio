@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, ExternalLink, Sun, Moon, House, Search } from "lucide-react";
+import { Send, ExternalLink, Sun, Moon, House, Search, ArrowUpLeft, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import persona from "@/data/persona.json";
 import { BorderBeam } from "@/components/ui/border-beam";
@@ -22,6 +22,14 @@ interface Message {
     text: string;
     timestamp: Date;
     projects?: ChatProject[];
+}
+
+interface ChatSession {
+    id: string;
+    title: string;
+    messages: Message[];
+    createdAt: Date;
+    lastUpdated: Date;
 }
 
 interface ChatBotProps {
@@ -163,7 +171,17 @@ const formatMessage = (text: string) => {
 
 export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
     const router = useRouter();
-    const [messages, setMessages] = useState<Message[]>([createWelcomeMessage()]);
+    const [sessions, setSessions] = useState<ChatSession[]>(() => {
+        const initialSession: ChatSession = {
+            id: `session-${Date.now()}`,
+            title: "New Chat",
+            messages: [createWelcomeMessage()],
+            createdAt: new Date(),
+            lastUpdated: new Date()
+        };
+        return [initialSession];
+    });
+    const [activeSessionId, setActiveSessionId] = useState(() => sessions[0]?.id || `session-${Date.now()}`);
     const [isTyping, setIsTyping] = useState(false);
     const [showScrollIndicator, setShowScrollIndicator] = useState(false);
     const [language, setLanguage] = useState("en");
@@ -178,8 +196,9 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
     const [iframeReloadKey, setIframeReloadKey] = useState(0);
     const [isXlViewport, setIsXlViewport] = useState(false);
     const [browserDarkMode, setBrowserDarkMode] = useState(true);
-    const [rightPanelWidth, setRightPanelWidth] = useState(480);
+    const [rightPanelWidth, setRightPanelWidth] = useState(450);
     const [isResizingRightPanel, setIsResizingRightPanel] = useState(false);
+    const [isMiddleScrollEnabled, setIsMiddleScrollEnabled] = useState(false);
     const resizeStartRef = useRef<{ startX: number; startWidth: number } | null>(null);
     const browserIframeRef = useRef<HTMLIFrameElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -213,7 +232,7 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
             scrollToBottom();
         }, 100);
         return () => clearTimeout(timeoutId);
-    }, [messages, isTyping]);
+    }, [sessions, activeSessionId, isTyping]);
 
     const scrollToLatestMessage = () => {
         scrollToBottom();
@@ -221,6 +240,7 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
     };
 
     const handleMiddleScrollWheel = (event: React.WheelEvent<HTMLDivElement>) => {
+        if (!isMiddleScrollEnabled) return;
         const container = event.currentTarget;
         container.scrollTop += event.deltaY;
         event.preventDefault();
@@ -309,17 +329,25 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
     };
 
     const handleQuestion = async (questionId: string, questionLabel: string) => {
+        const activeSession = sessions.find(s => s.id === activeSessionId);
+        if (!activeSession) return;
+
         const userMsg: Message = {
             id: `user-${Date.now()}`,
             type: "user",
             text: questionLabel,
             timestamp: new Date(),
         };
-        const newHistory = [...messages, userMsg];
-        setMessages(newHistory);
+        const newHistory = [...activeSession.messages, userMsg];
+        
+        setSessions(prev => prev.map(s => 
+            s.id === activeSessionId 
+                ? { ...s, messages: newHistory, lastUpdated: new Date(), title: s.title === "New Chat" ? questionLabel.substring(0, 30) : s.title }
+                : s
+        ));
         setIsTyping(true);
 
-        const { content, projects } = await askGroq(questionLabel, language, messages);
+        const { content, projects } = await askGroq(questionLabel, language, activeSession.messages);
 
         setIsTyping(false);
         const botMsg: Message = {
@@ -329,11 +357,19 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
             timestamp: new Date(),
             projects,
         };
-        setMessages([...newHistory, botMsg]);
+        
+        setSessions(prev => prev.map(s => 
+            s.id === activeSessionId 
+                ? { ...s, messages: [...newHistory, botMsg], lastUpdated: new Date() }
+                : s
+        ));
     };
 
     const handleCustomInput = async () => {
         if (!inputValue.trim()) return;
+
+        const activeSession = sessions.find(s => s.id === activeSessionId);
+        if (!activeSession) return;
 
         const userMsg: Message = {
             id: `user-${Date.now()}`,
@@ -341,13 +377,18 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
             text: inputValue,
             timestamp: new Date(),
         };
-        const newHistory = [...messages, userMsg];
-        setMessages(newHistory);
+        const newHistory = [...activeSession.messages, userMsg];
         const currentInput = inputValue;
+        
+        setSessions(prev => prev.map(s => 
+            s.id === activeSessionId 
+                ? { ...s, messages: newHistory, lastUpdated: new Date(), title: s.title === "New Chat" ? currentInput.substring(0, 30) : s.title }
+                : s
+        ));
         setInputValue("");
         setIsTyping(true);
 
-        const { content, projects } = await askGroq(currentInput, language, messages);
+        const { content, projects } = await askGroq(currentInput, language, activeSession.messages);
 
         setIsTyping(false);
         const botMsg: Message = {
@@ -357,11 +398,30 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
             timestamp: new Date(),
             projects,
         };
-        setMessages([...newHistory, botMsg]);
+        
+        setSessions(prev => prev.map(s => 
+            s.id === activeSessionId 
+                ? { ...s, messages: [...newHistory, botMsg], lastUpdated: new Date() }
+                : s
+        ));
     };
 
     const startNewSession = () => {
-        setMessages([createWelcomeMessage()]);
+        const newSession: ChatSession = {
+            id: `session-${Date.now()}`,
+            title: "New Chat",
+            messages: [createWelcomeMessage()],
+            createdAt: new Date(),
+            lastUpdated: new Date()
+        };
+        setSessions(prev => [newSession, ...prev]);
+        setActiveSessionId(newSession.id);
+        setInputValue("");
+        setIsTyping(false);
+    };
+
+    const switchSession = (sessionId: string) => {
+        setActiveSessionId(sessionId);
         setInputValue("");
         setIsTyping(false);
     };
@@ -643,9 +703,9 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
         syncIframeTheme();
     }, [browserDarkMode, previewUrl, iframeReloadKey]);
 
-    const historyItems = messages.filter((m) => m.type === "user").slice(-8).reverse();
+    const activeSession = sessions.find(s => s.id === activeSessionId) || sessions[0];
+    const messages = activeSession?.messages || [createWelcomeMessage()];
     const selectedShowcase = showcaseItems.find((item) => item.id === activeShowcase) || showcaseItems[0];
-    const sessionItems = historyItems.slice(0, 7);
     const browserDisplayUrl = previewUrl.startsWith("http")
         ? previewUrl
         : `http://localhost:3000${previewUrl}`;
@@ -713,50 +773,65 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                 )}
 
                 {isHeroVariant ? (
-                    <div className="h-full min-h-0 flex flex-col bg-[#0f0f10]">
-                        <div className="h-9 border-b border-foreground/[0.08] px-3 flex items-center justify-between bg-[#141415]">
+                    <div className="h-full min-h-0 flex flex-col bg-[hsl(var(--background)/0.98)]">
+                        <div className="h-9 border-b border-foreground/[0.08] px-3 flex items-center justify-between bg-[hsl(var(--muted)/0.5)]">
                             <div className="flex items-center gap-1.5">
-                                <span className="h-2.5 w-2.5 rounded-full bg-foreground/35" />
-                                <span className="h-2.5 w-2.5 rounded-full bg-foreground/35" />
-                                <span className="h-2.5 w-2.5 rounded-full bg-foreground/35" />
+                                <span className="h-2.5 w-2.5 rounded-full bg-red-500/90" />
+                                <span className="h-2.5 w-2.5 rounded-full bg-yellow-400/90" />
+                                <span className="h-2.5 w-2.5 rounded-full bg-green-500/90" />
                             </div>
                             <p className="text-xs text-foreground/80 tracking-wide">Neural Workspace</p>
-                            <p className="text-xs text-primary/80">Portfolio</p>
+                            <a
+                                href="/hire-me"
+                                className="inline-flex items-center gap-1 rounded-md border border-primary/30 px-2 py-0.5 text-[10px] font-medium text-primary/85 transition-colors hover:bg-primary/10 hover:text-primary"
+                            >
+                                <ArrowUpRight className="h-3 w-3" />
+                                Hire Me
+                            </a>
                         </div>
 
                         <div
                             className="grid flex-1 min-h-0 h-0 grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)] xl:[grid-template-columns:260px_minmax(0,1fr)_var(--chat-right-width)]"
                             style={heroGridStyle}
                         >
-                        <aside className="hidden lg:flex flex-col border-r border-foreground/[0.08] bg-[#111112]">
-                            <div className="px-4 py-4 border-b border-foreground/[0.08]">
-                                <p className="text-[11px] font-semibold tracking-wide text-foreground/70 uppercase">Ready For Review {sessionItems.length || 1}</p>
+                        <aside className="hidden lg:flex flex-col border-r border-foreground/[0.08] bg-[hsl(var(--muted)/0.3)]">
+                            <div className="h-9 px-3 border-b border-foreground/[0.08] flex items-center">
+                                <p className="text-[10px] font-semibold tracking-[0.12em] text-foreground/65 uppercase">Chat Sessions ({sessions.length})</p>
                             </div>
                             <div className="p-3 space-y-2 overflow-y-auto">
                                 <button
                                     onClick={startNewSession}
-                                    className="w-full text-left px-3 py-2 rounded-lg border border-primary/30 bg-primary/10 text-primary text-[11px]"
+                                    className="w-full text-left px-2.5 py-1.5 rounded-lg border border-primary/30 bg-primary/10 text-primary text-[10px] hover:bg-primary/15 transition-colors"
                                 >
-                                    + New Session
+                                    + New Chat
                                 </button>
-                                {sessionItems.length === 0 ? (
-                                    <div className="px-3 py-8 text-center text-xs text-foreground/40">Start chatting to build your session history.</div>
+                                {sessions.length === 0 ? (
+                                    <div className="px-3 py-8 text-center text-xs text-foreground/40">Start chatting to create your first session.</div>
                                 ) : (
-                                    sessionItems.map((item, idx) => (
-                                        <div key={item.id} className="px-3 py-2.5 rounded-lg border border-foreground/10 bg-foreground/[0.03]">
+                                    sessions.map((session) => (
+                                        <button
+                                            key={session.id}
+                                            onClick={() => switchSession(session.id)}
+                                            className={cn(
+                                                "w-full text-left px-3 py-2.5 rounded-lg border transition-colors",
+                                                session.id === activeSessionId
+                                                    ? "border-primary/40 bg-primary/10"
+                                                    : "border-foreground/10 bg-foreground/[0.03] hover:bg-foreground/[0.05]"
+                                            )}
+                                        >
                                             <div className="flex items-center justify-between gap-2">
-                                                <p className="text-[11px] text-foreground/80 line-clamp-1">{idx + 1}. {item.text}</p>
-                                                <span className="text-[10px] text-foreground/45 shrink-0">{formatTimeAgo(item.timestamp)}</span>
+                                                <p className="text-[11px] text-foreground/80 line-clamp-1 font-medium">{session.title}</p>
+                                                <span className="text-[10px] text-foreground/45 shrink-0">{formatTimeAgo(session.lastUpdated)}</span>
                                             </div>
-                                            <p className="mt-1 text-[10px] text-foreground/45 line-clamp-1">All set! Tracking latest changes.</p>
-                                        </div>
+                                            <p className="mt-1 text-[10px] text-foreground/45 line-clamp-1">{session.messages.length} messages</p>
+                                        </button>
                                     ))
                                 )}
                             </div>
                         </aside>
 
-                        <div className="min-w-0 min-h-0 flex flex-col border-r border-foreground/[0.08] xl:border-r bg-[#101113]">
-                            <div className="px-5 py-3 border-b border-foreground/[0.08] bg-[#141517] backdrop-blur-xl">
+                        <div className="min-w-0 min-h-0 flex flex-col border-r border-foreground/[0.08] xl:border-r bg-background">
+                            <div className="h-9 px-3 border-b border-foreground/[0.08] bg-[hsl(var(--muted)/0.4)] backdrop-blur-xl flex items-center">
                                 <div className="flex items-center justify-between gap-3">
                                     <p className="text-[11px] text-foreground/45">Current session</p>
                                     <p className="text-[10px] uppercase tracking-[0.18em] text-foreground/30">Chat</p>
@@ -764,13 +839,15 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                             </div>
 
                             <div className="relative flex-1 min-h-0 overflow-hidden flex flex-col">
-                                <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-10 bg-gradient-to-b from-[#101113] to-transparent" />
+                                <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-10 bg-gradient-to-b from-background to-transparent" />
                                 <div
                                     ref={chatContainerRef}
                                     onWheel={handleMiddleScrollWheel}
+                                    onMouseDown={() => setIsMiddleScrollEnabled(true)}
+                                    onMouseLeave={() => setIsMiddleScrollEnabled(false)}
                                     className="chat-middle-scroll flex-1 min-h-0 h-0 overflow-y-auto overscroll-contain touch-pan-y px-3 py-4 md:px-5 md:py-6 scroll-smooth"
                                 >
-                                    <div className="mx-auto flex w-full max-w-[700px] flex-col gap-3 pb-5 pt-2">
+                                    <div className="mx-auto flex w-full max-w-[700px] flex-col gap-2.5 pb-4 pt-2">
                                         <AnimatePresence mode="popLayout" initial={false}>
                                             {messages.map((msg) => (
                                                 <motion.div
@@ -781,8 +858,8 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                                                     className={cn("flex w-full px-1 md:px-2", msg.type === "user" ? "justify-end" : "justify-start")}
                                                 >
                                                     <div className={cn("w-full", msg.type === "user" ? "max-w-[88%] md:max-w-[68%]" : "max-w-[min(100%,38rem)]") }>
-                                                        <div className={cn("mb-2 flex items-center gap-2 text-[10px] uppercase tracking-[0.18em]", msg.type === "user" ? "justify-end text-foreground/35" : "justify-start text-foreground/40")}>
-                                                            <span className={cn("inline-flex h-5 items-center rounded-full border px-2", msg.type === "user" ? "border-primary/20 bg-primary/10 text-primary/90" : "border-foreground/10 bg-foreground/[0.03] text-foreground/50")}>
+                                                        <div className={cn("mb-1.5 flex items-center gap-1.5 text-[9px] uppercase tracking-[0.14em]", msg.type === "user" ? "justify-end text-foreground/35" : "justify-start text-foreground/40")}>
+                                                            <span className={cn("inline-flex h-4 items-center rounded-full border px-1.5", msg.type === "user" ? "border-primary/20 bg-primary/10 text-primary/90" : "border-foreground/10 bg-foreground/[0.03] text-foreground/50")}>
                                                                 {msg.type === "user" ? "You" : persona.name}
                                                             </span>
                                                             <span>{msg.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
@@ -822,7 +899,7 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                                     </div>
                                 </div>
 
-                                <div className="bg-transparent px-3 pb-2.5 pt-2.5 backdrop-blur-md space-y-2 shrink-0 relative md:px-4 md:pb-3 md:pt-3">
+                                <div className="bg-transparent px-3 py-2.5 backdrop-blur-md space-y-2 shrink-0 relative md:px-4 md:py-3">
                                     {showScrollIndicator && (
                                         <motion.button
                                             onClick={scrollToLatestMessage}
@@ -834,23 +911,25 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                                             <span className="text-base leading-none">↓</span>
                                         </motion.button>
                                     )}
-                                    <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide pb-1" style={{ scrollbarWidth: "none" }}>
-                                        {persona.suggestedQuestions.map((q) => (
-                                            <button
-                                                key={q.id}
-                                                onClick={() => handleQuestion(q.id, q.label)}
-                                                disabled={isTyping}
-                                                className={cn(
-                                                    "shrink-0 rounded-full border px-2.5 py-1 text-[9px] font-medium transition-all duration-300 disabled:opacity-50",
-                                                    q.id === "projects"
-                                                        ? "border-primary/30 bg-transparent text-primary hover:bg-primary/10"
-                                                        : "border-foreground/10 bg-transparent text-foreground/60 hover:text-foreground"
-                                                )}
-                                            >
-                                                {q.label}
-                                            </button>
-                                        ))}
-                                    </div>
+                                    {!showScrollIndicator && (
+                                        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide pb-1" style={{ scrollbarWidth: "none" }}>
+                                            {persona.suggestedQuestions.map((q) => (
+                                                <button
+                                                    key={q.id}
+                                                    onClick={() => handleQuestion(q.id, q.label)}
+                                                    disabled={isTyping}
+                                                    className={cn(
+                                                        "shrink-0 rounded-full border px-2.5 py-1 text-[10px] font-medium transition-all duration-300 disabled:opacity-50",
+                                                        q.id === "projects"
+                                                            ? "border-primary/30 bg-transparent text-primary hover:bg-primary/10"
+                                                            : "border-foreground/10 bg-transparent text-foreground/60 hover:text-foreground"
+                                                    )}
+                                                >
+                                                    {q.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
 
                                     <div className="flex items-center gap-2 rounded-2xl border border-foreground/10 bg-transparent px-2.5 py-1.5 md:px-3">
                                         <input
@@ -876,7 +955,7 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                         </div>
 
                         {isXlViewport && (
-                        <aside className="hidden xl:flex flex-col bg-[#101011] border-l border-foreground/[0.08] relative">
+                        <aside className="hidden xl:flex flex-col bg-[hsl(var(--muted)/0.3)] border-l border-foreground/[0.08] relative">
                             <div
                                 onMouseDown={handleRightPanelResizeStart}
                                 className={cn(
@@ -884,7 +963,7 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                                     isResizingRightPanel ? "bg-primary/40" : "bg-transparent hover:bg-primary/25"
                                 )}
                             />
-                            <div className="h-10 border-b border-foreground/[0.08] flex items-center px-3 gap-1.5 bg-[#151516]">
+                            <div className="h-9 border-b border-foreground/[0.08] flex items-center px-3 gap-1.5 bg-[hsl(var(--muted)/0.5)]">
                                 {showcaseItems.map((item) => (
                                     <button
                                         key={item.id}
@@ -901,7 +980,7 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                                 ))}
                             </div>
 
-                            <div className="h-9 border-b border-foreground/[0.08] px-2 flex items-center gap-2 bg-[#1a1c20]">
+                            <div className="h-9 border-b border-foreground/[0.08] px-3 flex items-center gap-2 bg-[hsl(var(--muted)/0.5)]">
                                 <span className="h-2 w-2 rounded-full bg-foreground/35" />
                                 <span className="h-2 w-2 rounded-full bg-foreground/35" />
                                 <span className="h-2 w-2 rounded-full bg-foreground/35" />
@@ -943,7 +1022,7 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                                     value={browserAddress}
                                     onChange={(e) => setBrowserAddress(e.target.value)}
                                     onKeyDown={(e) => e.key === "Enter" && handleBrowserGo()}
-                                    className="ml-1 flex-1 rounded-md border border-foreground/15 bg-black/25 px-2.5 py-1 text-[10px] text-foreground/70 outline-none"
+                                    className="ml-1 flex-1 rounded-md border border-foreground/15 bg-[hsl(var(--muted)/0.6)] px-2.5 py-1 text-[10px] text-foreground/70 outline-none"
                                 />
                                 <button
                                     onClick={handleBrowserGo}
@@ -953,7 +1032,7 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                                 </button>
                             </div>
 
-                            <div className="flex-1 min-h-0 bg-[#111112]">
+                            <div className="flex-1 min-h-0 bg-background">
                                 <iframe
                                     ref={browserIframeRef}
                                     key={iframeReloadKey}
@@ -975,9 +1054,11 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                             <div
                                 ref={chatContainerRef}
                                 onWheel={handleMiddleScrollWheel}
+                                onMouseDown={() => setIsMiddleScrollEnabled(true)}
+                                onMouseLeave={() => setIsMiddleScrollEnabled(false)}
                                 className="chat-middle-scroll h-[420px] overflow-y-auto overscroll-contain px-3 py-4 md:h-[460px] md:px-5 md:py-6 scroll-smooth"
                             >
-                                <div className="mx-auto flex w-full max-w-[700px] flex-col gap-3 pb-5 pt-2">
+                                <div className="mx-auto flex w-full max-w-[700px] flex-col gap-2.5 pb-4 pt-2">
                             <AnimatePresence mode="popLayout" initial={false}>
                                 {messages.map((msg) => (
                                     <motion.div
@@ -988,8 +1069,8 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                                         className={cn("flex w-full px-1 md:px-2", msg.type === "user" ? "justify-end" : "justify-start")}
                                     >
                                         <div className={cn("w-full", msg.type === "user" ? "max-w-[88%] md:max-w-[68%]" : "max-w-[min(100%,38rem)]")}>
-                                            <div className={cn("mb-2 flex items-center gap-2 text-[10px] uppercase tracking-[0.18em]", msg.type === "user" ? "justify-end text-foreground/35" : "justify-start text-foreground/40")}>
-                                                <span className={cn("inline-flex h-5 items-center rounded-full border px-2", msg.type === "user" ? "border-primary/20 bg-primary/10 text-primary/90" : "border-foreground/10 bg-foreground/[0.03] text-foreground/50")}>
+                                            <div className={cn("mb-1.5 flex items-center gap-1.5 text-[9px] uppercase tracking-[0.14em]", msg.type === "user" ? "justify-end text-foreground/35" : "justify-start text-foreground/40")}>
+                                                <span className={cn("inline-flex h-4 items-center rounded-full border px-1.5", msg.type === "user" ? "border-primary/20 bg-primary/10 text-primary/90" : "border-foreground/10 bg-foreground/[0.03] text-foreground/50")}>
                                                     {msg.type === "user" ? "You" : persona.name}
                                                 </span>
                                                 <span>{msg.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
@@ -1030,7 +1111,7 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                             </div>
                         </div>
 
-                        <div className="bg-transparent px-3 pb-2.5 pt-2.5 backdrop-blur-md space-y-2 md:px-6 md:pb-3 md:pt-3 relative">
+                        <div className="bg-transparent px-3 py-2.5 backdrop-blur-md space-y-2 md:px-4 md:py-3 relative">
                             {showScrollIndicator && (
                                 <motion.button
                                     onClick={scrollToLatestMessage}
@@ -1042,23 +1123,25 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                                     <span className="text-base leading-none">↓</span>
                                 </motion.button>
                             )}
-                            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide pb-1 md:flex-wrap md:justify-center md:overflow-visible" style={{ scrollbarWidth: "none" }}>
-                                {persona.suggestedQuestions.map((q) => (
-                                    <button
-                                        key={q.id}
-                                        onClick={() => handleQuestion(q.id, q.label)}
-                                        disabled={isTyping}
-                                        className={cn(
-                                            "shrink-0 rounded-full border px-2.5 py-1 text-[9px] font-medium transition-all duration-300 disabled:opacity-50",
-                                            q.id === "projects"
-                                                ? "bg-transparent border border-primary/30 text-primary hover:bg-primary/10"
-                                                : "bg-transparent border border-foreground/10 text-foreground/60 hover:text-foreground"
-                                        )}
-                                    >
-                                        {q.label}
-                                    </button>
-                                ))}
-                            </div>
+                            {!showScrollIndicator && (
+                                <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide pb-1 md:flex-wrap md:justify-center md:overflow-visible" style={{ scrollbarWidth: "none" }}>
+                                    {persona.suggestedQuestions.map((q) => (
+                                        <button
+                                            key={q.id}
+                                            onClick={() => handleQuestion(q.id, q.label)}
+                                            disabled={isTyping}
+                                            className={cn(
+                                                "shrink-0 rounded-full border px-2.5 py-1 text-[10px] font-medium transition-all duration-300 disabled:opacity-50",
+                                                q.id === "projects"
+                                                    ? "bg-transparent border border-primary/30 text-primary hover:bg-primary/10"
+                                                    : "bg-transparent border border-foreground/10 text-foreground/60 hover:text-foreground"
+                                            )}
+                                        >
+                                            {q.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
 
                             <div className="flex items-center gap-2 rounded-2xl border border-foreground/10 bg-transparent px-2.5 py-1.5 md:px-3">
                                 <div className="relative flex-1">

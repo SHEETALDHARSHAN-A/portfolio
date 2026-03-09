@@ -3,11 +3,12 @@
     "name": "SheetalDharshan A",
     "tagline": "Full-Stack Developer & AI Enthusiast",
     "suggestedQuestions": [
-        {
-            "id": "projects",
-            "label": "Show me your projects",
-            "emoji": "🚀"
-        }
+        { "id": "intro", "label": "About Sheetal" },
+        { "id": "skills", "label": "Tech Stack" },
+        { "id": "experience", "label": "Experience" },
+        { "id": "projects", "label": "Projects" },
+        { "id": "hire", "label": "Why Hire?" },
+        { "id": "fun", "label": "Fun Facts" }
     ],
     "answers": {
         "intro": {
