@@ -5,6 +5,8 @@ import { Send, ExternalLink, Sun, Moon, House, Search, ArrowUpLeft, ArrowUpRight
 import { cn } from "@/lib/utils";
 import persona from "@/data/persona.json";
 import { BorderBeam } from "@/components/ui/border-beam";
+import { Spinner } from "@/components/ui/spinner";
+import { Skeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -199,6 +201,7 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
     const [isResizingRightPanel, setIsResizingRightPanel] = useState(false);
     const [isMiddleScrollEnabled, setIsMiddleScrollEnabled] = useState(false);
     const [isRightPanelHeaderVisible, setIsRightPanelHeaderVisible] = useState(true);
+    const [isRightPanelLoading, setIsRightPanelLoading] = useState(true);
     const resizeStartRef = useRef<{ startX: number; startWidth: number } | null>(null);
     const rightPanelLastScrollTopRef = useRef(0);
     const rightPanelScrollCleanupRef = useRef<(() => void) | null>(null);
@@ -545,6 +548,8 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
     const navigateBrowserTo = (url: string, title?: string, pushHistory = true) => {
         if (!url) return;
 
+        setIsRightPanelLoading(true);
+
         let nextPreviewUrl = url;
         let nextAddress = url;
 
@@ -624,6 +629,7 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
             const iframeWindow = browserIframeRef.current?.contentWindow;
             const iframeDocument = browserIframeRef.current?.contentDocument;
             if (!iframeWindow || !iframeDocument) {
+                setIsRightPanelLoading(false);
                 setIsRightPanelHeaderVisible(true);
                 return;
             }
@@ -653,13 +659,16 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
             rightPanelScrollCleanupRef.current = () => {
                 iframeWindow.removeEventListener("scroll", handlePreviewScroll);
             };
+            setIsRightPanelLoading(false);
         } catch {
+            setIsRightPanelLoading(false);
             setIsRightPanelHeaderVisible(true);
             rightPanelScrollCleanupRef.current = null;
         }
     };
 
     const handleBrowserIframeError = () => {
+        setIsRightPanelLoading(false);
         setPreviewUrl(
             toBrowserErrorPageUrl(
                 "Unable to Load Showcase",
@@ -670,6 +679,11 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
 
     const openInPreview = (url: string, title?: string) => {
         const normalized = normalizeBrowserUrl(url);
+        if (rightPanelScrollIdleTimeoutRef.current) {
+            window.clearTimeout(rightPanelScrollIdleTimeoutRef.current);
+            rightPanelScrollIdleTimeoutRef.current = null;
+        }
+        setIsRightPanelHeaderVisible(true);
         navigateBrowserTo(normalized, title, true);
     };
 
@@ -1040,7 +1054,7 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                                     onClick={handleBrowserReload}
                                     className="text-[10px] px-2 py-1.5 rounded-xl text-foreground/60 transition-colors hover:text-foreground"
                                 >
-                                    ↻
+                                    {isRightPanelLoading ? <Spinner className="size-3" /> : "↻"}
                                 </button>
                                 <button
                                     onClick={() => navigateBrowserTo("/work", "Project Showcase", true)}
@@ -1070,7 +1084,28 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                             </div>
                             </motion.div>
 
-                            <div className="flex-1 min-h-0 bg-background">
+                            <div className="relative flex-1 min-h-0 bg-background">
+                                {isRightPanelLoading && (
+                                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/92 backdrop-blur-sm p-6">
+                                        <div className="w-full max-w-md rounded-[28px] border border-foreground/10 bg-[hsl(var(--muted)/0.16)] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.12)]">
+                                            <div className="flex items-center gap-3">
+                                                <Spinner className="size-5 text-primary" />
+                                                <div className="space-y-1">
+                                                    <p className="text-sm font-medium text-foreground/85">Loading preview</p>
+                                                    <p className="text-xs text-foreground/50">Please wait while the page opens.</p>
+                                                </div>
+                                            </div>
+                                            <div className="mt-5 space-y-3">
+                                                <Skeleton className="h-10 w-full rounded-2xl" />
+                                                <Skeleton className="h-36 w-full rounded-[22px]" />
+                                                <div className="grid grid-cols-2 gap-3">
+                                                    <Skeleton className="h-20 w-full rounded-[18px]" />
+                                                    <Skeleton className="h-20 w-full rounded-[18px]" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                                 <iframe
                                     ref={browserIframeRef}
                                     key={iframeReloadKey}
@@ -1078,7 +1113,7 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                                     src={previewUrl}
                                     onLoad={handleBrowserIframeLoad}
                                     onError={handleBrowserIframeError}
-                                    className="w-full h-full"
+                                    className={cn("h-full w-full transition-opacity duration-200", isRightPanelLoading ? "opacity-0" : "opacity-100")}
                                 />
                             </div>
                         </aside>

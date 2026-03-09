@@ -51,6 +51,11 @@ const pavelt = localFont({
 export const metadata: Metadata = {
   title: "SheetalDharshan A | Portfolio",
   description: "Full-stack developer & AI Enthusiast crafting stunning digital experiences. View my work, hire me, or book a call.",
+  icons: {
+    icon: "/site-logo.svg",
+    shortcut: "/site-logo.svg",
+    apple: "/site-logo.svg",
+  },
   openGraph: {
     title: "SheetalDharshan A | Portfolio",
     description: "Full-stack developer & AI Enthusiast crafting stunning digital experiences.",
