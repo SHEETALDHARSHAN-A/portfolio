@@ -230,6 +230,7 @@ export const Character3D = () => {
 
         const wrapper = wrapperRef.current;
         const container = containerRef.current;
+        gsap.set(wrapper, { autoAlpha: 1 });
 
         // Use container dimensions for sizing
         const width = container.clientWidth;
@@ -461,6 +462,17 @@ export const Character3D = () => {
                     onEnterBack: activateLandingAction,
                 });
 
+                ScrollTrigger.create({
+                    trigger: ".ref-hero",
+                    start: "top top",
+                    onEnter: () => {
+                        gsap.to(wrapper, { autoAlpha: 0, duration: 0.3, overwrite: "auto" });
+                    },
+                    onLeaveBack: () => {
+                        gsap.to(wrapper, { autoAlpha: 1, duration: 0.3, overwrite: "auto" });
+                    },
+                });
+
                 gsap.to(scene, { environmentIntensity: 0.64, duration: 2, ease: "power2.inOut" });
                 gsap.to(directionalLight, { intensity: 1, duration: 2, ease: "power2.inOut" });
 
@@ -622,7 +634,7 @@ export const Character3D = () => {
     return (
         <div
             ref={wrapperRef}
-            className="fixed top-0 left-0 w-full h-[100vh] z-0 pointer-events-none hidden lg:block character-model"
+            className="fixed top-0 left-0 w-full h-[100vh] z-0 pointer-events-none hidden lg:block character-model overflow-hidden"
         >
             <div className="absolute w-[400px] h-[400px] bg-[#f59bf8] rounded-full top-[60%] left-1/2 -translate-x-1/2 scale-x-[1.4] opacity-100 shadow-[inset_66px_35px_85px_0px_rgba(85,0,255,0.65)] blur-[50px] character-rim z-[-1]" />
             <div ref={containerRef} className="w-full h-full relative" />

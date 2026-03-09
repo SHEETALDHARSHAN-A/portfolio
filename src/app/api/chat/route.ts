@@ -3,9 +3,60 @@ import Groq from "groq-sdk";
 import { supabase } from "@/lib/supabase";
 import { projects as fallbackProjects } from "@/data/projects";
 
+type ProjectPayloadItem = {
+    title: string;
+    description: string;
+    tags: string[];
+    link?: string;
+    image_url?: string;
+};
+
+const PROJECT_CONTEXT_CACHE_TTL_MS = Number(process.env.PROJECT_CONTEXT_CACHE_TTL_MS || 5 * 60 * 1000);
+const GROQ_CHAT_MODEL = process.env.GROQ_CHAT_MODEL || "llama-3.1-8b-instant";
+const GROQ_MAX_TOKENS = Number(process.env.GROQ_MAX_TOKENS || 700);
+
+let projectPayloadCache: { expiresAt: number; payload: ProjectPayloadItem[] } | null = null;
+
 const groq = new Groq({
     apiKey: process.env.GROQ_API_KEY,
 });
+
+const normalizeFallbackProjects = (): ProjectPayloadItem[] => fallbackProjects.map((p) => ({
+    title: p.title,
+    description: p.description,
+    tags: Array.isArray(p.tags) ? p.tags : [],
+    link: p.link || undefined,
+    image_url: p.image,
+}));
+
+const getProjectPayload = async (): Promise<ProjectPayloadItem[]> => {
+    const now = Date.now();
+    if (projectPayloadCache && projectPayloadCache.expiresAt > now) {
+        return projectPayloadCache.payload;
+    }
+
+    const { data: projects } = await supabase
+        .from("projects")
+        .select("title, description, tags, link, image_url")
+        .order("order", { ascending: true });
+
+    const normalizedSupabaseProjects = (projects || []).map((p: { title: string; description: string; tags?: string[] | null; link?: string | null; image_url?: string | null }) => ({
+        title: p.title,
+        description: p.description,
+        tags: Array.isArray(p.tags) ? p.tags : [],
+        link: p.link || undefined,
+        image_url: p.image_url || undefined,
+    }));
+
+    const payload = normalizedSupabaseProjects.length > 0 ? normalizedSupabaseProjects : normalizeFallbackProjects();
+
+    projectPayloadCache = {
+        payload,
+        expiresAt: now + PROJECT_CONTEXT_CACHE_TTL_MS,
+    };
+
+    return payload;
+};
 
 export async function POST(req: Request) {
     try {
@@ -19,29 +70,7 @@ export async function POST(req: Request) {
         const PROJECT_QUERY_REGEX = /(project|projects|portfolio|work|works|show\s+me\s+.*project|what\s+have\s+you\s+built|case\s*stud(y|ies))/i;
         const isProjectIntent = PROJECT_QUERY_REGEX.test(latestUserMessage || "");
 
-        // Fetch projects to give context to the AI
-        const { data: projects } = await supabase
-            .from("projects")
-            .select("title, description, tags, link, image_url")
-            .order("order", { ascending: true });
-
-        const normalizedSupabaseProjects = (projects || []).map((p: { title: string; description: string; tags?: string[] | null; link?: string | null; image_url?: string | null }) => ({
-            title: p.title,
-            description: p.description,
-            tags: Array.isArray(p.tags) ? p.tags : [],
-            link: p.link || undefined,
-            image_url: p.image_url || undefined,
-        }));
-
-        const normalizedFallbackProjects = fallbackProjects.map((p) => ({
-            title: p.title,
-            description: p.description,
-            tags: Array.isArray(p.tags) ? p.tags : [],
-            link: p.link || undefined,
-            image_url: p.image,
-        }));
-
-        const projectPayload = normalizedSupabaseProjects.length > 0 ? normalizedSupabaseProjects : normalizedFallbackProjects;
+        const projectPayload = await getProjectPayload();
 
         const projectsContext = projectPayload.map((p) =>
             `- ${p.title}: ${p.description} (Tech: ${(p.tags || []).join(", ")}) ${p.link ? `[Link](${p.link})` : ""}`
@@ -74,9 +103,9 @@ Respond in the language specified: ${language || "en"}.`;
                 { role: "system", content: systemPrompt },
                 ...messages
             ],
-            model: "llama-3.3-70b-versatile",
+            model: GROQ_CHAT_MODEL,
             temperature: 0.7,
-            max_tokens: 1024,
+            max_tokens: GROQ_MAX_TOKENS,
             top_p: 1,
             stream: false,
         });
