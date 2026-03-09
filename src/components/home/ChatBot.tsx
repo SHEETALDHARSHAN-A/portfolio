@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import persona from "@/data/persona.json";
 import { BorderBeam } from "@/components/ui/border-beam";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface ChatProject {
     title: string;
@@ -161,8 +162,10 @@ const formatMessage = (text: string) => {
 };
 
 export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
+    const router = useRouter();
     const [messages, setMessages] = useState<Message[]>([createWelcomeMessage()]);
     const [isTyping, setIsTyping] = useState(false);
+    const [showScrollIndicator, setShowScrollIndicator] = useState(false);
     const [language, setLanguage] = useState("en");
     const [langMenuOpen, setLangMenuOpen] = useState(false);
     const [inputValue, setInputValue] = useState("");
@@ -173,8 +176,9 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
     const [browserHistory, setBrowserHistory] = useState<string[]>([showcaseItems[0].url]);
     const [browserHistoryIndex, setBrowserHistoryIndex] = useState(0);
     const [iframeReloadKey, setIframeReloadKey] = useState(0);
+    const [isXlViewport, setIsXlViewport] = useState(false);
     const [browserDarkMode, setBrowserDarkMode] = useState(true);
-    const [rightPanelWidth, setRightPanelWidth] = useState(600);
+    const [rightPanelWidth, setRightPanelWidth] = useState(480);
     const [isResizingRightPanel, setIsResizingRightPanel] = useState(false);
     const resizeStartRef = useRef<{ startX: number; startWidth: number } | null>(null);
     const browserIframeRef = useRef<HTMLIFrameElement>(null);
@@ -191,12 +195,37 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
     };
 
     useEffect(() => {
+        const handleScroll = () => {
+            const container = chatContainerRef.current;
+            if (!container) return;
+            const isAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 50;
+            setShowScrollIndicator(!isAtBottom);
+        };
+
+        const container = chatContainerRef.current;
+        container?.addEventListener('scroll', handleScroll);
+        return () => container?.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    useEffect(() => {
         // Small timeout to allow DOM to update before scrolling
         const timeoutId = setTimeout(() => {
             scrollToBottom();
         }, 100);
         return () => clearTimeout(timeoutId);
     }, [messages, isTyping]);
+
+    const scrollToLatestMessage = () => {
+        scrollToBottom();
+        setShowScrollIndicator(false);
+    };
+
+    const handleMiddleScrollWheel = (event: React.WheelEvent<HTMLDivElement>) => {
+        const container = event.currentTarget;
+        container.scrollTop += event.deltaY;
+        event.preventDefault();
+        event.stopPropagation();
+    };
 
     useEffect(() => {
         if (!isResizingRightPanel) return;
@@ -211,6 +240,23 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
             document.body.style.userSelect = previousUserSelect;
         };
     }, [isResizingRightPanel]);
+
+    useEffect(() => {
+        const mediaQuery = window.matchMedia("(min-width: 1280px)");
+        const updateViewport = () => setIsXlViewport(mediaQuery.matches);
+
+        updateViewport();
+        mediaQuery.addEventListener("change", updateViewport);
+
+        return () => {
+            mediaQuery.removeEventListener("change", updateViewport);
+        };
+    }, []);
+
+    useEffect(() => {
+        router.prefetch("/work");
+        router.prefetch("/blog");
+    }, [router]);
 
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
@@ -618,7 +664,7 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
     } as React.CSSProperties;
 
     return (
-        <div className={cn("w-full mx-auto transition-all duration-500", isHeroVariant ? "max-w-none flex flex-col" : "max-w-md")} style={isHeroVariant ? { height: "72vh", minHeight: "420px", maxHeight: "760px" } : {}}>
+        <div className={cn("w-full mx-auto transition-all duration-500 min-h-0", isHeroVariant ? "max-w-none flex flex-col" : "max-w-md")} style={isHeroVariant ? { height: "72vh", minHeight: "420px", maxHeight: "760px" } : {}}>
             {/* Avatar Section */}
             {!isHeroVariant && (
                 <motion.div
@@ -648,7 +694,7 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 className={cn(
-                    "relative overflow-hidden flex flex-col rounded-3xl border border-foreground/[0.08] bg-background/40 backdrop-blur-xl shadow-2xl",
+                    "relative overflow-hidden flex flex-col rounded-3xl border border-foreground/[0.08] bg-background/40 backdrop-blur-xl shadow-2xl min-h-0",
                     isHeroVariant ? "flex-1" : "shadow-primary/5"
                 )}
             >
@@ -667,7 +713,7 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                 )}
 
                 {isHeroVariant ? (
-                    <div className="h-full flex flex-col bg-[#0f0f10]">
+                    <div className="h-full min-h-0 flex flex-col bg-[#0f0f10]">
                         <div className="h-9 border-b border-foreground/[0.08] px-3 flex items-center justify-between bg-[#141415]">
                             <div className="flex items-center gap-1.5">
                                 <span className="h-2.5 w-2.5 rounded-full bg-foreground/35" />
@@ -679,7 +725,7 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                         </div>
 
                         <div
-                            className="grid flex-1 min-h-0 grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)] xl:[grid-template-columns:260px_minmax(0,1fr)_var(--chat-right-width)]"
+                            className="grid flex-1 min-h-0 h-0 grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)] xl:[grid-template-columns:260px_minmax(0,1fr)_var(--chat-right-width)]"
                             style={heroGridStyle}
                         >
                         <aside className="hidden lg:flex flex-col border-r border-foreground/[0.08] bg-[#111112]">
@@ -709,18 +755,22 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                             </div>
                         </aside>
 
-                        <div className="min-w-0 min-h-0 flex flex-col border-r border-foreground/[0.08] xl:border-r bg-[#121213]">
-                            <div className="px-5 py-3 border-b border-foreground/[0.08] bg-[#151516]">
-                                <p className="text-[11px] text-foreground/45">Current session</p>
+                        <div className="min-w-0 min-h-0 flex flex-col border-r border-foreground/[0.08] xl:border-r bg-[#101113]">
+                            <div className="px-5 py-3 border-b border-foreground/[0.08] bg-[#141517] backdrop-blur-xl">
+                                <div className="flex items-center justify-between gap-3">
+                                    <p className="text-[11px] text-foreground/45">Current session</p>
+                                    <p className="text-[10px] uppercase tracking-[0.18em] text-foreground/30">Chat</p>
+                                </div>
                             </div>
 
-                            <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
+                            <div className="relative flex-1 min-h-0 overflow-hidden flex flex-col">
+                                <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-10 bg-gradient-to-b from-[#101113] to-transparent" />
                                 <div
                                     ref={chatContainerRef}
-                                    className="flex-1 min-h-0 overflow-y-auto px-4 py-4 md:px-6 md:py-5 scroll-smooth scrollbar-hide"
-                                    style={{ scrollbarWidth: "none" }}
+                                    onWheel={handleMiddleScrollWheel}
+                                    className="chat-middle-scroll flex-1 min-h-0 h-0 overflow-y-auto overscroll-contain touch-pan-y px-3 py-4 md:px-5 md:py-6 scroll-smooth"
                                 >
-                                    <div className="mx-auto w-full max-w-[720px] space-y-6">
+                                    <div className="mx-auto flex w-full max-w-[700px] flex-col gap-3 pb-5 pt-2">
                                         <AnimatePresence mode="popLayout" initial={false}>
                                             {messages.map((msg) => (
                                                 <motion.div
@@ -728,42 +778,42 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                                                     animate={{ opacity: 1, x: 0, y: 0 }}
                                                     transition={{ type: "spring", stiffness: 400, damping: 30 }}
                                                     exit={{ opacity: 0, scale: 0.95 }}
-                                                    className={cn("flex w-full group", msg.type === "user" ? "justify-end" : "justify-start")}
+                                                    className={cn("flex w-full px-1 md:px-2", msg.type === "user" ? "justify-end" : "justify-start")}
                                                 >
-                                                    <div
-                                                        className={cn(
-                                                            "max-w-[92%] md:max-w-[82%] px-5 py-4 text-sm relative",
-                                                            msg.type === "bot"
-                                                                ? "bg-foreground/5 border border-foreground/10 rounded-2xl rounded-tl-none font-sans text-foreground/90 shadow-sm"
-                                                                : "bg-primary text-primary-foreground rounded-2xl rounded-tr-none font-sans font-medium shadow-lg shadow-primary/20"
-                                                        )}
-                                                    >
+                                                    <div className={cn("w-full", msg.type === "user" ? "max-w-[88%] md:max-w-[68%]" : "max-w-[min(100%,38rem)]") }>
+                                                        <div className={cn("mb-2 flex items-center gap-2 text-[10px] uppercase tracking-[0.18em]", msg.type === "user" ? "justify-end text-foreground/35" : "justify-start text-foreground/40")}>
+                                                            <span className={cn("inline-flex h-5 items-center rounded-full border px-2", msg.type === "user" ? "border-primary/20 bg-primary/10 text-primary/90" : "border-foreground/10 bg-foreground/[0.03] text-foreground/50")}>
+                                                                {msg.type === "user" ? "You" : persona.name}
+                                                            </span>
+                                                            <span>{msg.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                                                        </div>
+                                                        <div
+                                                            className={cn(
+                                                                "relative px-3.5 py-2.5 text-[13px] md:text-[14px] leading-6",
+                                                                msg.type === "bot"
+                                                                    ? "rounded-2xl border border-foreground/10 bg-foreground/[0.025] text-foreground/88 shadow-[0_8px_28px_rgba(0,0,0,0.12)]"
+                                                                    : "rounded-2xl rounded-br-md bg-foreground text-background shadow-[0_8px_24px_rgba(0,0,0,0.2)]"
+                                                            )}
+                                                        >
                                                         <div className="relative z-10" onClick={handleMessageContentClick}>
                                                             {formatMessage(msg.text)}
                                                             {msg.projects && msg.projects.length > 0 && (
-                                                                <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 mt-4">
+                                                                <div className="mt-4 grid grid-cols-1 gap-3 xl:grid-cols-2">
                                                                     {msg.projects.map((project, idx) => (
                                                                         <ChatProjectCard key={project.title} project={project} index={idx} onOpenInPreview={openInPreview} />
                                                                     ))}
                                                                 </div>
                                                             )}
                                                         </div>
-                                                        <span
-                                                            className={cn(
-                                                                "absolute -bottom-5 text-[10px] opacity-0 group-hover:opacity-50 transition-opacity whitespace-nowrap",
-                                                                msg.type === "user" ? "right-0" : "left-0"
-                                                            )}
-                                                        >
-                                                            {msg.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                                                        </span>
+                                                        </div>
                                                     </div>
                                                 </motion.div>
                                             ))}
                                         </AnimatePresence>
 
                                         {isTyping && (
-                                            <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="flex justify-start">
-                                                <div className="bg-foreground/5 border border-foreground/10 rounded-2xl rounded-tl-none px-4 py-2">
+                                            <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="flex justify-start px-1 md:px-2">
+                                                <div className="rounded-3xl border border-foreground/10 bg-foreground/[0.025] px-3 py-1 shadow-[0_10px_30px_rgba(0,0,0,0.1)]">
                                                     <TypingIndicator />
                                                 </div>
                                             </motion.div>
@@ -772,7 +822,18 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                                     </div>
                                 </div>
 
-                                <div className="p-3 md:p-4 border-t border-foreground/[0.08] bg-transparent space-y-3 shrink-0">
+                                <div className="bg-transparent px-3 pb-2.5 pt-2.5 backdrop-blur-md space-y-2 shrink-0 relative md:px-4 md:pb-3 md:pt-3">
+                                    {showScrollIndicator && (
+                                        <motion.button
+                                            onClick={scrollToLatestMessage}
+                                            initial={{ opacity: 0, y: -10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -10 }}
+                                            className="absolute -top-10 right-2 md:right-2 z-20 flex items-center justify-center p-0 text-foreground/55 transition-colors hover:text-primary"
+                                        >
+                                            <span className="text-base leading-none">↓</span>
+                                        </motion.button>
+                                    )}
                                     <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide pb-1" style={{ scrollbarWidth: "none" }}>
                                         {persona.suggestedQuestions.map((q) => (
                                             <button
@@ -780,10 +841,10 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                                                 onClick={() => handleQuestion(q.id, q.label)}
                                                 disabled={isTyping}
                                                 className={cn(
-                                                    "px-2.5 py-1 rounded-full text-[8px] md:text-[9px] font-semibold uppercase tracking-wide transition-all duration-300 disabled:opacity-50 flex items-center gap-1 whitespace-nowrap shrink-0",
+                                                    "shrink-0 rounded-full border px-2.5 py-1 text-[9px] font-medium transition-all duration-300 disabled:opacity-50",
                                                     q.id === "projects"
-                                                        ? "bg-primary/10 border border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground"
-                                                        : "bg-foreground/5 border border-foreground/10 text-foreground/60 hover:text-foreground hover:bg-foreground/10"
+                                                        ? "border-primary/30 bg-transparent text-primary hover:bg-primary/10"
+                                                        : "border-foreground/10 bg-transparent text-foreground/60 hover:text-foreground"
                                                 )}
                                             >
                                                 {q.label}
@@ -791,7 +852,7 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                                         ))}
                                     </div>
 
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2 rounded-2xl border border-foreground/10 bg-transparent px-2.5 py-1.5 md:px-3">
                                         <input
                                             type="text"
                                             value={inputValue}
@@ -799,64 +860,22 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                                             onKeyDown={(e) => e.key === "Enter" && handleCustomInput()}
                                             placeholder="make a landing page based on attached docs"
                                             disabled={isTyping}
-                                            className="w-full bg-background/60 border border-foreground/10 rounded-xl px-4 py-2.5 text-xs md:text-sm text-foreground placeholder:text-foreground/35 focus:outline-none focus:border-primary/40 disabled:opacity-50"
+                                            className="min-h-[30px] w-full bg-transparent px-1 text-[12px] text-foreground placeholder:text-foreground/35 focus:outline-none disabled:opacity-50 md:text-[13px]"
                                         />
                                         <button
                                             onClick={handleCustomInput}
                                             disabled={isTyping || !inputValue.trim()}
-                                            className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-primary-foreground transition-all disabled:opacity-50"
+                                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-foreground text-background transition-all hover:scale-[1.03] disabled:opacity-50"
                                         >
-                                            <Send className="w-4 h-4" />
+                                            <Send className="w-3.5 h-3.5" />
                                         </button>
                                     </div>
 
-                                    <div className="xl:hidden mt-1 rounded-lg border border-foreground/10 bg-[#111112] p-2 space-y-2">
-                                        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: "none" }}>
-                                            {showcaseItems.map((item) => (
-                                                <button
-                                                    key={item.id}
-                                                    onClick={() => selectShowcase(item)}
-                                                    className={cn(
-                                                        "px-2 py-1 text-[10px] rounded-md border transition-colors whitespace-nowrap",
-                                                        activeShowcase === item.id
-                                                            ? "border-primary/40 bg-primary/10 text-primary"
-                                                            : "border-foreground/15 bg-foreground/5 text-foreground/60 hover:text-foreground"
-                                                    )}
-                                                >
-                                                    {item.title}
-                                                </button>
-                                            ))}
-                                        </div>
-                                        <div className="h-9 border border-foreground/[0.08] rounded-md px-2 flex items-center gap-1.5 bg-[#1a1c20]">
-                                            <button onClick={handleBrowserBack} disabled={browserHistoryIndex <= 0} className="text-[10px] px-1.5 py-1 rounded border border-foreground/15 text-foreground/60 disabled:opacity-40">←</button>
-                                            <button onClick={handleBrowserForward} disabled={browserHistoryIndex >= browserHistory.length - 1} className="text-[10px] px-1.5 py-1 rounded border border-foreground/15 text-foreground/60 disabled:opacity-40">→</button>
-                                            <button onClick={handleBrowserReload} className="text-[10px] px-1.5 py-1 rounded border border-foreground/15 text-foreground/60">↻</button>
-                                            <button onClick={() => navigateBrowserTo("/work", "Project Showcase", true)} className="text-[10px] px-1.5 py-1 rounded border border-foreground/15 text-foreground/60"><House className="w-3 h-3" /></button>
-                                            <button onClick={handleBrowserThemeToggle} className="text-[10px] px-1.5 py-1 rounded border border-foreground/15 text-foreground/60">{browserDarkMode ? <Sun className="w-3 h-3" /> : <Moon className="w-3 h-3" />}</button>
-                                            <input
-                                                value={browserAddress}
-                                                onChange={(e) => setBrowserAddress(e.target.value)}
-                                                onKeyDown={(e) => e.key === "Enter" && handleBrowserGo()}
-                                                className="flex-1 min-w-0 rounded-md border border-foreground/15 bg-black/25 px-2 py-1 text-[10px] text-foreground/70 outline-none"
-                                            />
-                                            <button onClick={handleBrowserGo} className="text-[10px] px-2 py-1 rounded border border-primary/30 bg-primary/10 text-primary"><Search className="w-3 h-3" /></button>
-                                        </div>
-                                        <div className="h-40 rounded-md overflow-hidden border border-foreground/10 bg-black/25">
-                                            <iframe
-                                                ref={browserIframeRef}
-                                                key={`mobile-${iframeReloadKey}`}
-                                                title={previewTitle}
-                                                src={previewUrl}
-                                                onLoad={handleBrowserIframeLoad}
-                                                onError={handleBrowserIframeError}
-                                                className="w-full h-full"
-                                            />
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
 
+                        {isXlViewport && (
                         <aside className="hidden xl:flex flex-col bg-[#101011] border-l border-foreground/[0.08] relative">
                             <div
                                 onMouseDown={handleRightPanelResizeStart}
@@ -946,15 +965,19 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                                 />
                             </div>
                         </aside>
+                        )}
                         </div>
                     </div>
                 ) : (
                     <>
-                        <div
-                            ref={chatContainerRef}
-                            className="overflow-y-auto p-6 space-y-6 scroll-smooth scrollbar-hide h-[400px]"
-                            style={{ scrollbarWidth: "none" }}
-                        >
+                        <div className="relative flex-1 min-h-0 overflow-hidden">
+                            <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-10 bg-gradient-to-b from-background to-transparent" />
+                            <div
+                                ref={chatContainerRef}
+                                onWheel={handleMiddleScrollWheel}
+                                className="chat-middle-scroll h-[420px] overflow-y-auto overscroll-contain px-3 py-4 md:h-[460px] md:px-5 md:py-6 scroll-smooth"
+                            >
+                                <div className="mx-auto flex w-full max-w-[700px] flex-col gap-3 pb-5 pt-2">
                             <AnimatePresence mode="popLayout" initial={false}>
                                 {messages.map((msg) => (
                                     <motion.div
@@ -962,50 +985,63 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                                         animate={{ opacity: 1, x: 0, y: 0 }}
                                         transition={{ type: "spring", stiffness: 400, damping: 30 }}
                                         exit={{ opacity: 0, scale: 0.95 }}
-                                        className={cn("flex w-full group", msg.type === "user" ? "justify-end" : "justify-start")}
+                                        className={cn("flex w-full px-1 md:px-2", msg.type === "user" ? "justify-end" : "justify-start")}
                                     >
-                                        <div
-                                            className={cn(
-                                                "max-w-[85%] md:max-w-[75%] px-5 py-4 text-sm relative",
-                                                msg.type === "bot"
-                                                    ? "bg-foreground/5 border border-foreground/10 rounded-2xl rounded-tl-none font-sans text-foreground/90 shadow-sm"
-                                                    : "bg-primary text-primary-foreground rounded-2xl rounded-tr-none font-sans font-medium shadow-lg shadow-primary/20"
-                                            )}
-                                        >
-                                            <div className="relative z-10">
+                                        <div className={cn("w-full", msg.type === "user" ? "max-w-[88%] md:max-w-[68%]" : "max-w-[min(100%,38rem)]")}>
+                                            <div className={cn("mb-2 flex items-center gap-2 text-[10px] uppercase tracking-[0.18em]", msg.type === "user" ? "justify-end text-foreground/35" : "justify-start text-foreground/40")}>
+                                                <span className={cn("inline-flex h-5 items-center rounded-full border px-2", msg.type === "user" ? "border-primary/20 bg-primary/10 text-primary/90" : "border-foreground/10 bg-foreground/[0.03] text-foreground/50")}>
+                                                    {msg.type === "user" ? "You" : persona.name}
+                                                </span>
+                                                <span>{msg.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                                            </div>
+                                            <div
+                                                className={cn(
+                                                    "relative px-3.5 py-2.5 text-[13px] md:text-[14px] leading-6",
+                                                    msg.type === "bot"
+                                                        ? "rounded-2xl border border-foreground/10 bg-foreground/[0.025] text-foreground/88 shadow-[0_8px_28px_rgba(0,0,0,0.12)]"
+                                                        : "rounded-2xl rounded-br-md bg-foreground text-background shadow-[0_8px_24px_rgba(0,0,0,0.2)]"
+                                                )}
+                                            >
+                                            <div className="relative z-10" onClick={handleMessageContentClick}>
                                                 {formatMessage(msg.text)}
                                                 {msg.projects && msg.projects.length > 0 && (
-                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+                                                    <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                                                         {msg.projects.map((project, idx) => (
-                                                            <ChatProjectCard key={project.title} project={project} index={idx} />
+                                                            <ChatProjectCard key={project.title} project={project} index={idx} onOpenInPreview={openInPreview} />
                                                         ))}
                                                     </div>
                                                 )}
                                             </div>
-                                            <span
-                                                className={cn(
-                                                    "absolute -bottom-5 text-[10px] opacity-0 group-hover:opacity-50 transition-opacity whitespace-nowrap",
-                                                    msg.type === "user" ? "right-0" : "left-0"
-                                                )}
-                                            >
-                                                {msg.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                                            </span>
+                                            </div>
                                         </div>
                                     </motion.div>
                                 ))}
                             </AnimatePresence>
 
                             {isTyping && (
-                                <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="flex justify-start">
-                                    <div className="bg-foreground/5 border border-foreground/10 rounded-2xl rounded-tl-none px-4 py-2">
+                                <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="flex justify-start px-1 md:px-2">
+                                    <div className="rounded-3xl border border-foreground/10 bg-foreground/[0.025] px-3 py-1 shadow-[0_10px_30px_rgba(0,0,0,0.1)]">
                                         <TypingIndicator />
                                     </div>
                                 </motion.div>
                             )}
                             <div ref={messagesEndRef} />
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="p-3 md:p-6 bg-gradient-to-b from-transparent to-foreground/[0.02] border-t border-foreground/[0.08] space-y-3 md:space-y-5">
+                        <div className="bg-transparent px-3 pb-2.5 pt-2.5 backdrop-blur-md space-y-2 md:px-6 md:pb-3 md:pt-3 relative">
+                            {showScrollIndicator && (
+                                <motion.button
+                                    onClick={scrollToLatestMessage}
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                    className="absolute -top-10 right-2 md:right-2 z-20 flex items-center justify-center p-0 text-foreground/55 transition-colors hover:text-primary"
+                                >
+                                    <span className="text-base leading-none">↓</span>
+                                </motion.button>
+                            )}
                             <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide pb-1 md:flex-wrap md:justify-center md:overflow-visible" style={{ scrollbarWidth: "none" }}>
                                 {persona.suggestedQuestions.map((q) => (
                                     <button
@@ -1013,10 +1049,10 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                                         onClick={() => handleQuestion(q.id, q.label)}
                                         disabled={isTyping}
                                         className={cn(
-                                            "px-2.5 py-1 md:px-3 md:py-1.5 rounded-full text-[8px] md:text-[9px] font-semibold uppercase tracking-wide transition-all duration-300 disabled:opacity-50 flex items-center gap-1 whitespace-nowrap shrink-0",
+                                            "shrink-0 rounded-full border px-2.5 py-1 text-[9px] font-medium transition-all duration-300 disabled:opacity-50",
                                             q.id === "projects"
-                                                ? "bg-primary/10 border border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground hover:scale-105 active:scale-95 shadow-sm shadow-primary/5"
-                                                : "bg-foreground/5 border border-foreground/10 text-foreground/60 hover:text-foreground hover:bg-foreground/10 hover:border-foreground/20"
+                                                ? "bg-transparent border border-primary/30 text-primary hover:bg-primary/10"
+                                                : "bg-transparent border border-foreground/10 text-foreground/60 hover:text-foreground"
                                         )}
                                     >
                                         {q.label}
@@ -1024,9 +1060,8 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                                 ))}
                             </div>
 
-                            <div className="flex items-center gap-2 md:gap-3">
-                                <div className="relative flex-1 group">
-                                    <div className="absolute -inset-px bg-gradient-to-r from-primary/30 to-accent/30 rounded-full blur opacity-0 group-focus-within:opacity-100 transition duration-500" />
+                            <div className="flex items-center gap-2 rounded-2xl border border-foreground/10 bg-transparent px-2.5 py-1.5 md:px-3">
+                                <div className="relative flex-1">
                                     <input
                                         type="text"
                                         value={inputValue}
@@ -1034,15 +1069,15 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                                         onKeyDown={(e) => e.key === "Enter" && handleCustomInput()}
                                         placeholder="Message Neural Interface..."
                                         disabled={isTyping}
-                                        className="relative w-full bg-background/60 border border-foreground/10 rounded-full px-4 py-2.5 md:px-6 md:py-3 text-xs md:text-sm text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-primary/50 transition-all disabled:opacity-50 backdrop-blur-md"
+                                        className="relative min-h-[30px] w-full bg-transparent px-1 text-[12px] text-foreground placeholder:text-foreground/30 focus:outline-none transition-all disabled:opacity-50 md:text-[13px]"
                                     />
                                 </div>
                                 <button
                                     onClick={handleCustomInput}
                                     disabled={isTyping || !inputValue.trim()}
-                                    className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground hover:scale-105 active:scale-95 transition-all disabled:opacity-50 shadow-xl shadow-primary/30 shrink-0"
+                                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-foreground text-background transition-all hover:scale-[1.03] active:scale-95 disabled:opacity-50"
                                 >
-                                    <Send className="w-4 h-4" />
+                                    <Send className="w-3.5 h-3.5" />
                                 </button>
                             </div>
                         </div>

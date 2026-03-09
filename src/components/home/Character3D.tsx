@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { GLTFLoader, DRACOLoader, RGBELoader } from "three-stdlib";
 import { gsap } from "gsap";
@@ -210,8 +210,22 @@ const addLegacyPropsToRig = (legacyScene: THREE.Object3D, rig: THREE.Object3D) =
 export const Character3D = () => {
     const wrapperRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+    const [isDesktopViewport, setIsDesktopViewport] = useState(false);
 
     useEffect(() => {
+        const mediaQuery = window.matchMedia("(min-width: 1024px)");
+        const updateViewport = () => setIsDesktopViewport(mediaQuery.matches);
+
+        updateViewport();
+        mediaQuery.addEventListener("change", updateViewport);
+
+        return () => {
+            mediaQuery.removeEventListener("change", updateViewport);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (!isDesktopViewport) return;
         if (!containerRef.current || !wrapperRef.current) return;
 
         const wrapper = wrapperRef.current;
@@ -601,7 +615,9 @@ export const Character3D = () => {
             dracoLoader?.dispose();
             ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
         };
-    }, []);
+    }, [isDesktopViewport]);
+
+    if (!isDesktopViewport) return null;
 
     return (
         <div

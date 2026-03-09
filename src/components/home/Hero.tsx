@@ -9,18 +9,17 @@ export const Hero = () => {
 
 
             {/* Content */}
-            <div className="relative z-10 w-full max-w-7xl mx-auto px-4 md:px-6 flex flex-col items-center justify-start">
-                <div className="w-full pt-4 md:pt-8 pb-6">
-                    <div className="flex flex-col gap-4 md:gap-6">
+            <div className="relative z-10 w-full max-w-7xl mx-auto px-4 md:px-6 flex flex-col items-center justify-start min-h-0">
+                <div className="w-full pt-4 md:pt-8 pb-6 min-h-0">
+                    <div className="flex flex-col gap-4 md:gap-6 min-h-0">
                         <motion.h2
                             className="font-display text-4xl md:text-6xl leading-[0.9] text-right"
                             initial={{ opacity: 0, x: 30 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.7 }}
                         >
-                            G<span className="ref-hat-h2">ET</span>
                             <div>
-                                2<span className="ref-do-h2 italic"> KNOW ME</span>
+                                <span className="ref-do-h2 italic">GET</span> 2 <span className="ref-do-h2 italic"> KNOW ME</span>
                             </div>
                         </motion.h2>
 
@@ -28,7 +27,7 @@ export const Hero = () => {
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.5 }}
-                            className="w-full px-0 md:px-1"
+                            className="w-full px-0 md:px-1 min-h-0"
                         >
                             <ChatBot isHeroVariant={true} />
                         </motion.div>

@@ -178,3 +178,38 @@
   animation: none;
   mix-blend-mode: normal;
 }
+
+/* ─── Middle Chat Custom Scrollbar ─── */
+.chat-middle-scroll {
+  scrollbar-width: thin !important;
+  scrollbar-color: hsl(var(--foreground) / 0.25) transparent !important;
+}
+
+.chat-middle-scroll::-webkit-scrollbar {
+  display: block !important;
+  width: 10px;
+}
+
+.chat-middle-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-middle-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    hsl(var(--foreground) / 0.28),
+    hsl(var(--foreground) / 0.18)
+  );
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  border-radius: 9999px;
+}
+
+.chat-middle-scroll::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    hsl(var(--primary) / 0.45),
+    hsl(var(--foreground) / 0.25)
+  );
+  background-clip: padding-box;
+}
