@@ -34,3 +34,19 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Showcase Browser Panel
+
+The right-side browser panel is configured for showcase mode (project links and hosted previews), not unrestricted browsing.
+
+- Client-side allow list env var: `NEXT_PUBLIC_BROWSER_PANEL_ALLOWED_HOSTS`
+- Server-side proxy allow list env var: `BROWSER_PROXY_ALLOWED_HOSTS`
+
+Both env vars accept comma-separated host patterns, for example:
+
+```bash
+NEXT_PUBLIC_BROWSER_PANEL_ALLOWED_HOSTS=*.yourdomain.com,preview.yourdomain.com
+BROWSER_PROXY_ALLOWED_HOSTS=*.yourdomain.com,preview.yourdomain.com
+```
+
+Default allowed hosts are `hexoran.com` and `*.hexoran.com`.

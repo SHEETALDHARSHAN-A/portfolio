@@ -4,24 +4,9 @@
     "tagline": "Full-Stack Developer & AI Enthusiast",
     "suggestedQuestions": [
         {
-            "id": "intro",
-            "label": "Who are you?",
-            "emoji": "👋"
-        },
-        {
-            "id": "experience",
-            "label": "Tell me about your experience",
-            "emoji": "💼"
-        },
-        {
             "id": "projects",
             "label": "Show me your projects",
             "emoji": "🚀"
-        },
-        {
-            "id": "hire",
-            "label": "Why should I hire you?",
-            "emoji": "🤝"
         }
     ],
     "answers": {

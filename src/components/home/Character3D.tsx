@@ -506,7 +506,7 @@ export const Character3D = () => {
                     tl3
                         .fromTo(wrapper, { y: 0 }, { y: "-85%", duration: 4, ease: "none", delay: 1 }, 0)
                         .to(characterRig.rotation, { x: -0.04, duration: 2, delay: 1 }, 0)
-                        .to(characterRig.position, { y: LANDING_RIG_Y_OFFSET + 1.6, duration: 2.4, delay: 0.8, ease: "power2.out" }, 0);
+                        .to(characterRig.position, { x: -0.7, y: LANDING_RIG_Y_OFFSET + 1.6, duration: 2.4, delay: 0.8, ease: "power2.out" }, 0);
 
                     if (monitor && (monitor as any).material) {
                         tl3.to((monitor as any).material, { opacity: 1, duration: 0.6, delay: 0.6 }, 0);

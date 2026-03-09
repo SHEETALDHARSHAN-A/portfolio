@@ -9,20 +9,11 @@ export const Hero = () => {
 
 
             {/* Content */}
-            <div className="relative z-10 w-full max-w-6xl mx-auto px-4 md:px-6 flex flex-col items-center justify-start">
+            <div className="relative z-10 w-full max-w-7xl mx-auto px-4 md:px-6 flex flex-col items-center justify-start">
                 <div className="w-full pt-4 md:pt-8 pb-6">
-                    <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8">
-                        <motion.div
-                            initial={{ opacity: 0, y: 30 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.8, delay: 0.5 }}
-                            className="w-full max-w-4xl px-0 md:px-2"
-                        >
-                            <ChatBot isHeroVariant={true} />
-                        </motion.div>
-
+                    <div className="flex flex-col gap-4 md:gap-6">
                         <motion.h2
-                            className="font-display text-4xl md:text-6xl leading-[0.9] md:text-right md:shrink-0"
+                            className="font-display text-4xl md:text-6xl leading-[0.9] text-right"
                             initial={{ opacity: 0, x: 30 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.7 }}
@@ -32,6 +23,15 @@ export const Hero = () => {
                                 2<span className="ref-do-h2 italic"> KNOW ME</span>
                             </div>
                         </motion.h2>
+
+                        <motion.div
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 0.5 }}
+                            className="w-full px-0 md:px-1"
+                        >
+                            <ChatBot isHeroVariant={true} />
+                        </motion.div>
                     </div>
 
                 </div>

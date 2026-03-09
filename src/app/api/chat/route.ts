@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Groq from "groq-sdk";
 import { supabase } from "@/lib/supabase";
+import { projects as fallbackProjects } from "@/data/projects";
 
 const groq = new Groq({
     apiKey: process.env.GROQ_API_KEY,
@@ -10,14 +11,40 @@ export async function POST(req: Request) {
     try {
         const { messages, language } = await req.json();
 
+        const userMessages = Array.isArray(messages)
+            ? messages.filter((m: { role?: string; content?: string }) => m?.role === "user" && typeof m?.content === "string")
+            : [];
+        const latestUserMessage = userMessages.length > 0 ? userMessages[userMessages.length - 1].content : "";
+
+        const PROJECT_QUERY_REGEX = /(project|projects|portfolio|work|works|show\s+me\s+.*project|what\s+have\s+you\s+built|case\s*stud(y|ies))/i;
+        const isProjectIntent = PROJECT_QUERY_REGEX.test(latestUserMessage || "");
+
         // Fetch projects to give context to the AI
         const { data: projects } = await supabase
             .from("projects")
             .select("title, description, tags, link, image_url")
             .order("order", { ascending: true });
 
-        const projectsContext = projects?.map(p =>
-            `- ${p.title}: ${p.description} (Tech: ${p.tags.join(", ")}) ${p.link ? `[Link](${p.link})` : ""}`
+        const normalizedSupabaseProjects = (projects || []).map((p: { title: string; description: string; tags?: string[] | null; link?: string | null; image_url?: string | null }) => ({
+            title: p.title,
+            description: p.description,
+            tags: Array.isArray(p.tags) ? p.tags : [],
+            link: p.link || undefined,
+            image_url: p.image_url || undefined,
+        }));
+
+        const normalizedFallbackProjects = fallbackProjects.map((p) => ({
+            title: p.title,
+            description: p.description,
+            tags: Array.isArray(p.tags) ? p.tags : [],
+            link: p.link || undefined,
+            image_url: p.image,
+        }));
+
+        const projectPayload = normalizedSupabaseProjects.length > 0 ? normalizedSupabaseProjects : normalizedFallbackProjects;
+
+        const projectsContext = projectPayload.map((p) =>
+            `- ${p.title}: ${p.description} (Tech: ${(p.tags || []).join(", ")}) ${p.link ? `[Link](${p.link})` : ""}`
         ).join("\n") || "No specific projects listed yet.";
 
         const systemPrompt = `You are an AI replica of Sheetal Dharshan, a Full-Stack Developer & AI Enthusiast. 
@@ -56,12 +83,16 @@ Respond in the language specified: ${language || "en"}.`;
 
         const content = chatCompletion.choices[0]?.message?.content || "I'm sorry, I couldn't process that.";
 
-        // If the response contains the project marker, include project data
-        const hasProjects = content.includes("[SHOW_PROJECTS]");
+        // Deterministic project-card behavior: include cards for marker OR project-intent prompts.
+        const hasProjects = content.includes("[SHOW_PROJECTS]") || isProjectIntent;
+
+        const finalContent = hasProjects && !content.includes("[SHOW_PROJECTS]")
+            ? `${content.trim()}\n\n[SHOW_PROJECTS]`
+            : content;
 
         return NextResponse.json({
-            content,
-            ...(hasProjects && { projects: projects || [] })
+            content: finalContent,
+            ...(hasProjects && { projects: projectPayload })
         });
     } catch (error) {
         console.error("Groq API Error:", error);

@@ -48,7 +48,7 @@ export const LandingSection = () => {
                     transition={{ duration: 0.8, delay: 0.6 }}
                 >
                     <h3 className="font-sans text-[11px] md:text-[13px] uppercase tracking-[0.2em] opacity-40 mb-24 md:mb-32">An</h3>
-                    <div className="ref-landing-role-accent font-elnath font-bold tracking-[0.1em] text-3xl md:text-5xl xl:text-6xl mb-2 uppercase opacity-90 text-white">
+                    <div className="ref-landing-role-accent font-elnath font-bold tracking-[0.1em] text-3xl md:text-5xl xl:text-6xl mb-2 uppercase opacity-90 text-black dark:text-white">
                         Full-Stack <span className="text-sm md:text-base xl:text-lg opacity-60">&amp;</span>
                     </div>
                     <div className="ref-landing-role gradient-text font-elnath tracking-[0.1em] text-3xl md:text-5xl xl:text-6xl font-light opacity-80 uppercase">

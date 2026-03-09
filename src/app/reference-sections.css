@@ -333,12 +333,17 @@
 }
 
 .ref-what-box h2 {
-    font-size: calc(4vw + 25px);
-    line-height: calc(4vw + 20px);
+    font-family: var(--font-elnath);
+    font-size: clamp(2.75rem, 5vw, 5rem);
+    line-height: 1.05;
+    letter-spacing: 0.08em;
     font-weight: 600;
+    text-transform: uppercase;
+    text-align: right;
+    opacity: 0.9;
     margin: 0;
-    margin-right: 25%;
-    margin-bottom: 100px;
+    margin-right: 0;
+    margin-bottom: 2rem;
 }
 
 .ref-hat-h2 {
@@ -467,34 +472,39 @@
 }
 
 .ref-what-content h3 {
-    font-size: 32px;
-    letter-spacing: 1px;
+    font-family: var(--font-elnath);
+    font-size: clamp(1.75rem, 2vw, 2rem);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 600;
+    opacity: 0.9;
     margin: 0;
     color: hsl(var(--foreground));
 }
 
 .ref-what-content h4 {
     font-weight: 300;
-    letter-spacing: 1px;
+    letter-spacing: 0.06em;
     margin: 0;
-    font-size: 14px;
-    opacity: 0.3;
+    font-size: clamp(0.75rem, 1vw, 0.9rem);
+    opacity: 0.5;
     color: hsl(var(--foreground));
 }
 
 .ref-what-content p {
-    font-size: 14px;
-    line-height: 20px;
-    font-weight: 200;
-    letter-spacing: 0.7px;
+    font-size: clamp(0.9rem, 1vw, 1rem);
+    line-height: 1.6;
+    font-weight: 300;
+    letter-spacing: 0.02em;
     color: hsl(var(--foreground) / 0.8);
 }
 
 .ref-what-content-in h5 {
     font-weight: 300;
-    opacity: 0.5;
-    font-size: 12px;
-    letter-spacing: 1px;
+    opacity: 0.6;
+    font-size: clamp(0.7rem, 1vw, 0.75rem);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
     margin-bottom: 5px;
     color: hsl(var(--foreground));
 }
@@ -506,8 +516,8 @@
 }
 
 .ref-what-tags {
-    font-size: 13px;
-    font-weight: 400;
+    font-size: 11px;
+    font-weight: 500;
     padding: 3px 8px;
     background-color: hsl(var(--foreground) / 0.08);
     border: 1px solid hsl(var(--foreground) / 0.15);
@@ -552,7 +562,7 @@
 /* Responsive */
 @media only screen and (max-width: 1400px) {
     .ref-what-box h2 {
-        margin-right: 18%;
+        margin-right: 0;
     }
 
     .ref-what-box-in {
@@ -561,7 +571,7 @@
     }
 
     .ref-what-content h3 {
-        font-size: 28px;
+        font-size: clamp(1.5rem, 1.8vw, 1.75rem);
     }
 
     .ref-what-content {
@@ -570,7 +580,7 @@
     }
 
     .ref-what-content p {
-        font-size: 13px;
+        font-size: 0.9rem;
     }
 
     .ref-what-content:hover {
@@ -582,7 +592,14 @@
     }
 
     .ref-what-tags {
-        font-size: 12px;
+        font-size: 10px;
+    }
+}
+
+@media only screen and (min-width: 1024px) {
+    .ref-what-box h2 {
+        text-align: left;
+        margin-bottom: 2.5rem;
     }
 }
 
@@ -611,8 +628,8 @@
 
     .ref-what-box h2 {
         margin: 30px 0;
-        font-size: 55px;
-        line-height: 53px;
+        font-size: 62px;
+        line-height: 58px;
     }
 
     .ref-what-box:first-child {
