@@ -187,7 +187,6 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
     const [language, setLanguage] = useState("en");
     const [langMenuOpen, setLangMenuOpen] = useState(false);
     const [inputValue, setInputValue] = useState("");
-    const [activeShowcase, setActiveShowcase] = useState(showcaseItems[0].id);
     const [previewUrl, setPreviewUrl] = useState(showcaseItems[0].url);
     const [previewTitle, setPreviewTitle] = useState(showcaseItems[0].title);
     const [browserAddress, setBrowserAddress] = useState(showcaseItems[0].url);
@@ -199,7 +198,11 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
     const [rightPanelWidth, setRightPanelWidth] = useState(450);
     const [isResizingRightPanel, setIsResizingRightPanel] = useState(false);
     const [isMiddleScrollEnabled, setIsMiddleScrollEnabled] = useState(false);
+    const [isRightPanelHeaderVisible, setIsRightPanelHeaderVisible] = useState(true);
     const resizeStartRef = useRef<{ startX: number; startWidth: number } | null>(null);
+    const rightPanelLastScrollTopRef = useRef(0);
+    const rightPanelScrollCleanupRef = useRef<(() => void) | null>(null);
+    const rightPanelScrollIdleTimeoutRef = useRef<number | null>(null);
     const browserIframeRef = useRef<HTMLIFrameElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -577,8 +580,6 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
             });
         }
 
-        const matched = showcaseItems.find((item) => item.url === nextAddress);
-        if (matched) setActiveShowcase(matched.id);
     };
 
     const syncBrowserStateFromIframe = () => {
@@ -612,6 +613,50 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
     const handleBrowserIframeLoad = () => {
         syncIframeTheme();
         syncBrowserStateFromIframe();
+
+        rightPanelScrollCleanupRef.current?.();
+        if (rightPanelScrollIdleTimeoutRef.current) {
+            window.clearTimeout(rightPanelScrollIdleTimeoutRef.current);
+            rightPanelScrollIdleTimeoutRef.current = null;
+        }
+
+        try {
+            const iframeWindow = browserIframeRef.current?.contentWindow;
+            const iframeDocument = browserIframeRef.current?.contentDocument;
+            if (!iframeWindow || !iframeDocument) {
+                setIsRightPanelHeaderVisible(true);
+                return;
+            }
+
+            const getScrollTop = () => iframeWindow.scrollY || iframeDocument.documentElement.scrollTop || iframeDocument.body.scrollTop || 0;
+
+            rightPanelLastScrollTopRef.current = getScrollTop();
+            setIsRightPanelHeaderVisible(getScrollTop() <= 8);
+
+            const handlePreviewScroll = () => {
+                const currentScrollTop = getScrollTop();
+                setIsRightPanelHeaderVisible(false);
+
+                if (rightPanelScrollIdleTimeoutRef.current) {
+                    window.clearTimeout(rightPanelScrollIdleTimeoutRef.current);
+                }
+
+                rightPanelScrollIdleTimeoutRef.current = window.setTimeout(() => {
+                    setIsRightPanelHeaderVisible(getScrollTop() <= 8);
+                    rightPanelScrollIdleTimeoutRef.current = null;
+                }, 140);
+
+                rightPanelLastScrollTopRef.current = currentScrollTop;
+            };
+
+            iframeWindow.addEventListener("scroll", handlePreviewScroll, { passive: true });
+            rightPanelScrollCleanupRef.current = () => {
+                iframeWindow.removeEventListener("scroll", handlePreviewScroll);
+            };
+        } catch {
+            setIsRightPanelHeaderVisible(true);
+            rightPanelScrollCleanupRef.current = null;
+        }
     };
 
     const handleBrowserIframeError = () => {
@@ -621,11 +666,6 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                 "Sorry for the inconvenience. The selected showcase page is currently unreachable."
             )
         );
-    };
-
-    const selectShowcase = (item: ShowcaseItem) => {
-        setActiveShowcase(item.id);
-        navigateBrowserTo(item.url, item.title, true);
     };
 
     const openInPreview = (url: string, title?: string) => {
@@ -703,9 +743,17 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
         syncIframeTheme();
     }, [browserDarkMode, previewUrl, iframeReloadKey]);
 
+    useEffect(() => {
+        return () => {
+            rightPanelScrollCleanupRef.current?.();
+            if (rightPanelScrollIdleTimeoutRef.current) {
+                window.clearTimeout(rightPanelScrollIdleTimeoutRef.current);
+            }
+        };
+    }, []);
+
     const activeSession = sessions.find(s => s.id === activeSessionId) || sessions[0];
     const messages = activeSession?.messages || [createWelcomeMessage()];
-    const selectedShowcase = showcaseItems.find((item) => item.id === activeShowcase) || showcaseItems[0];
     const browserDisplayUrl = previewUrl.startsWith("http")
         ? previewUrl
         : `http://localhost:3000${previewUrl}`;
@@ -963,57 +1011,46 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                                     isResizingRightPanel ? "bg-primary/40" : "bg-transparent hover:bg-primary/25"
                                 )}
                             />
-                            <div className="h-9 border-b border-foreground/[0.08] flex items-center px-3 gap-1.5 bg-[hsl(var(--muted)/0.5)]">
-                                {showcaseItems.map((item) => (
-                                    <button
-                                        key={item.id}
-                                        onClick={() => selectShowcase(item)}
-                                        className={cn(
-                                            "px-2.5 py-1 text-[10px] rounded-md border transition-colors",
-                                            activeShowcase === item.id
-                                                ? "border-primary/40 bg-primary/10 text-primary"
-                                                : "border-foreground/15 bg-foreground/5 text-foreground/60 hover:text-foreground"
-                                        )}
-                                    >
-                                        {item.title}
-                                    </button>
-                                ))}
-                            </div>
-
-                            <div className="h-9 border-b border-foreground/[0.08] px-3 flex items-center gap-2 bg-[hsl(var(--muted)/0.5)]">
-                                <span className="h-2 w-2 rounded-full bg-foreground/35" />
-                                <span className="h-2 w-2 rounded-full bg-foreground/35" />
-                                <span className="h-2 w-2 rounded-full bg-foreground/35" />
-
+                            <motion.div
+                                initial={false}
+                                animate={{
+                                    height: isRightPanelHeaderVisible ? 36 : 0,
+                                    opacity: isRightPanelHeaderVisible ? 1 : 0,
+                                    y: isRightPanelHeaderVisible ? 0 : -10,
+                                }}
+                                transition={{ duration: 0.05, ease: "easeOut" }}
+                                className="overflow-hidden"
+                            >
+                            <div className="h-9 border-b border-foreground/[0.08] px-3 flex items-center gap-1 bg-[hsl(var(--muted)/0.5)]">
                                 <button
                                     onClick={handleBrowserBack}
                                     disabled={browserHistoryIndex <= 0}
-                                    className="text-[10px] px-1.5 py-1 rounded border border-foreground/15 text-foreground/60 disabled:opacity-40"
+                                    className="text-[10px] px-2 py-1.5 rounded-xl text-foreground/60 transition-colors hover:text-foreground disabled:opacity-40"
                                 >
                                     ←
                                 </button>
                                 <button
                                     onClick={handleBrowserForward}
                                     disabled={browserHistoryIndex >= browserHistory.length - 1}
-                                    className="text-[10px] px-1.5 py-1 rounded border border-foreground/15 text-foreground/60 disabled:opacity-40"
+                                    className="text-[10px] px-2 py-1.5 rounded-xl text-foreground/60 transition-colors hover:text-foreground disabled:opacity-40"
                                 >
                                     →
                                 </button>
                                 <button
                                     onClick={handleBrowserReload}
-                                    className="text-[10px] px-1.5 py-1 rounded border border-foreground/15 text-foreground/60"
+                                    className="text-[10px] px-2 py-1.5 rounded-xl text-foreground/60 transition-colors hover:text-foreground"
                                 >
                                     ↻
                                 </button>
                                 <button
                                     onClick={() => navigateBrowserTo("/work", "Project Showcase", true)}
-                                    className="text-[10px] px-1.5 py-1 rounded border border-foreground/15 text-foreground/60"
+                                    className="text-[10px] px-2 py-1.5 rounded-xl text-foreground/60 transition-colors hover:text-foreground"
                                 >
                                     <House className="w-3 h-3" />
                                 </button>
                                 <button
                                     onClick={handleBrowserThemeToggle}
-                                    className="text-[10px] px-1.5 py-1 rounded border border-foreground/15 text-foreground/60"
+                                    className="text-[10px] px-2 py-1.5 rounded-xl text-foreground/60 transition-colors hover:text-foreground"
                                 >
                                     {browserDarkMode ? <Sun className="w-3 h-3" /> : <Moon className="w-3 h-3" />}
                                 </button>
@@ -1022,15 +1059,16 @@ export const ChatBot = ({ isHeroVariant = false }: ChatBotProps) => {
                                     value={browserAddress}
                                     onChange={(e) => setBrowserAddress(e.target.value)}
                                     onKeyDown={(e) => e.key === "Enter" && handleBrowserGo()}
-                                    className="ml-1 flex-1 rounded-md border border-foreground/15 bg-[hsl(var(--muted)/0.6)] px-2.5 py-1 text-[10px] text-foreground/70 outline-none"
+                                    className="ml-1 flex-1 rounded-xl border border-foreground/15 bg-[hsl(var(--muted)/0.6)] px-3 py-1.5 text-[10px] text-foreground/70 outline-none"
                                 />
                                 <button
                                     onClick={handleBrowserGo}
-                                    className="text-[10px] px-2 py-1 rounded border border-primary/30 bg-primary/10 text-primary"
+                                    className="text-[10px] px-2.5 py-1.5 rounded-xl border border-primary/30 bg-primary/10 text-primary"
                                 >
                                     <Search className="w-3 h-3" />
                                 </button>
                             </div>
+                            </motion.div>
 
                             <div className="flex-1 min-h-0 bg-background">
                                 <iframe
