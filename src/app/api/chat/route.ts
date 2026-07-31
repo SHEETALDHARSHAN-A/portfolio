@@ -17,9 +17,15 @@ const GROQ_MAX_TOKENS = Number(process.env.GROQ_MAX_TOKENS || 700);
 
 let projectPayloadCache: { expiresAt: number; payload: ProjectPayloadItem[] } | null = null;
 
-const groq = new Groq({
-    apiKey: process.env.GROQ_API_KEY,
-});
+// Lazy init: constructing Groq without an API key throws, which would
+// crash `next build` in environments where GROQ_API_KEY isn't set.
+let groqClient: Groq | null = null;
+const getGroq = () => {
+    if (!groqClient) {
+        groqClient = new Groq({ apiKey: process.env.GROQ_API_KEY });
+    }
+    return groqClient;
+};
 
 const normalizeFallbackProjects = (): ProjectPayloadItem[] => fallbackProjects.map((p) => ({
     title: p.title,
@@ -98,7 +104,7 @@ When the user asks about projects, portfolios, or your work, you MUST include th
 Keep your responses concise, professional, and matching the persona.
 Respond in the language specified: ${language || "en"}.`;
 
-        const chatCompletion = await groq.chat.completions.create({
+        const chatCompletion = await getGroq().chat.completions.create({
             messages: [
                 { role: "system", content: systemPrompt },
                 ...messages
