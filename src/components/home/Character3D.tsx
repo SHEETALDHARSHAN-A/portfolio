@@ -14,7 +14,6 @@ const ANIMATION_FILES = [
     "characters3d.com - Type Passcode.glb",
     "characters3d.com - Idle Look Around .glb",
     "characters3d.com - Idle.glb",
-    "characters3d.com - Professional Patrick.glb",
 ];
 
 const LEGACY_CHARACTER_NODE_PATTERN =
@@ -289,14 +288,23 @@ export const Character3D = () => {
 
         const initCharacter = async () => {
             try {
-                const baseGltf = await loader.loadAsync(MODEL_PATH);
+                // Download everything concurrently instead of one after another.
+                const [baseGltf, legacyPropsGltf, animationGlbs] = await Promise.all([
+                    loader.loadAsync(MODEL_PATH),
+                    loader.loadAsync(LEGACY_SCENE_PATH),
+                    Promise.all(
+                        ANIMATION_FILES.map(async (fileName) =>
+                            loader.loadAsync(`/models/animations/${encodeURIComponent(fileName)}`)
+                        )
+                    ),
+                ]);
+
                 const character = baseGltf.scene;
                 const characterRig = new THREE.Group();
                 characterRig.name = "character-rig";
                 scene.add(characterRig);
                 characterRig.add(character);
 
-                const legacyPropsGltf = await loader.loadAsync(LEGACY_SCENE_PATH);
                 const legacyPropsGroup = addLegacyPropsToRig(legacyPropsGltf.scene, characterRig);
 
                 character.traverse((child: any) => {
@@ -338,10 +346,6 @@ export const Character3D = () => {
 
                 headBone = findObjectByNames(character, ["spine006", "Head", "head", "mixamorigHead", "characters3d.com___Head"]);
                 neckBone = findObjectByNames(character, ["spine005", "Neck", "neck", "mixamorigNeck", "characters3d.com___Neck"]);
-
-                const animationGlbs = await Promise.all(
-                    ANIMATION_FILES.map(async (fileName) => loader.loadAsync(`/models/animations/${encodeURIComponent(fileName)}`))
-                );
 
                 const allClips = collectUniqueClips([
                     ...(baseGltf.animations || []),
